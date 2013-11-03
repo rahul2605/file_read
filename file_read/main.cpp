@@ -23,10 +23,10 @@ vector<string> cur_code, code;									//Contains the lines of code
 
 
 
-struct FinalTable {										//Create the final IS-EX-MEM-WB-COMMIT table
+struct TimingTable {										//Create the final IS-EX-MEM-WB-COMMIT table
 	int ISSUE, EX0, EX1, MEM0, MEM1, WB, COMMIT;
 
-	FinalTable() { ISSUE = EX0 = EX1 = MEM0 = MEM1 = WB = COMMIT = 0; }
+	TimingTable() { ISSUE = EX0 = EX1 = MEM0 = MEM1 = WB = COMMIT = 0; }
 public: void print()
 		{
 			cout<<"  ";
@@ -51,7 +51,7 @@ public: void print()
 			cout<<COMMIT<<"   |"<<endl;
 		}
 };
-vector<FinalTable> FT;
+vector<TimingTable> FT;
 
 
 struct Integer_Adder {										//Create the Integer Adder
@@ -265,6 +265,50 @@ int ROB_entries = 0;
 
 
 
+struct BranchTargetBuffer {
+	int cur_PC, pred_PC, code_cnt, r1, r2, target_PC;
+	bool taken;
+
+	BranchTargetBuffer() {cur_PC = pred_PC = code_cnt = r1 = r2 = -1;}
+};
+BranchTargetBuffer BTB[8];
+
+bool BTBContains(int cur_code_cnt) {
+	for (int i=0; i<8; i++)
+		if (BTB[i].cur_PC == cur_code_cnt)
+			return true;
+	return false;
+}
+
+int BTBGet(int cur_code_cnt) {
+	for (int i=0; i<8; i++)
+		if (BTB[i].cur_PC == cur_code_cnt)
+			return BTB[i].pred_PC;
+}
+
+void BTBAdd(int cur_code_cnt, int code_cnt, int target_PC) {
+	for (int i=0; i<8; i++)
+		if (BTB[i].cur_PC == -1)
+		{
+			BTB[i].cur_PC = cur_code_cnt;
+			BTB[i].code_cnt = code_cnt;
+			BTB[i].target_PC = target_PC;
+			break;
+		}
+}
+
+void BTBUpdate(int cur_PC, int pred_PC) {
+	for (int i=0; i<8; i++)
+	{
+		if (BTB[i].cur_PC == cur_PC)
+		{BTB[i].pred_PC = pred_PC;}
+	}
+}
+
+int branch_PC = 0;
+bool branch = false;
+bool wait_for_branch = false;
+
 
 
 //Function used in FormatLine(string)
@@ -372,7 +416,7 @@ void ParseLine(vector<string> string_list, string line) {
 			}
 		}
 	}
-	else if (!string_list.empty() && (string_list.size() < 5))
+	else if (!string_list.empty() && (string_list.size() < 5) && (string_list.size() > 2))
 		cur_code.push_back(line);
 }
 
@@ -384,7 +428,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\test2.txt");		//Open the input file
+	ifstream myfile("C:\\test.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -656,13 +700,35 @@ int main()
 		int FU_occupied = 0;
 		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++)
 		{
-			if (!RS_IntAdder[i].isEmpty() && RS_IntAdder[i].Qj == "" && RS_IntAdder[i].Qk == "" && RS_IntAdder[i].Op != "bne" && RS_IntAdder[i].Op != "beq")
+			if (!RS_IntAdder[i].isEmpty() && RS_IntAdder[i].Qj == "" && RS_IntAdder[i].Qk == "")
 			{
 				if (FT.at(RS_IntAdder[i].code_cnt).EX0 == 0)
 				{
+					int branch_PC = -1;
+					int BTB_num = -1;
+					for (int j=0; j<8; j++)
+						if (BTB[j].code_cnt == RS_IntAdder[i].code_cnt)
+							BTB_num = j;
+
 					FT.at(RS_IntAdder[i].code_cnt).EX0 = clk;
 					FT.at(RS_IntAdder[i].code_cnt).EX1 = clk + Integer_Adder::cycles_EX - 1;
 					FU_occupied++;
+
+					if (RS_IntAdder[i].Op == "bne")
+					{
+						if (RS_IntAdder[i].Vj != RS_IntAdder[i].Vk)
+						{
+							//branch_PC = BTB[BTB_num].
+						}
+						else
+						{}
+					}
+
+					else if (RS_IntAdder[i].Op == "beq")
+					{
+
+					}
+
 					if (FU_occupied == Integer_Adder::num_FU)
 						break;
 				}
@@ -757,8 +823,8 @@ int main()
 		/////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////ISSUE////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////
-
-		if (cur_code_cnt < cur_code.size())
+		
+		if (!wait_for_branch && cur_code_cnt < cur_code.size())
 		{
 			vector<string> string_list = BreakLine(cur_code.at(cur_code_cnt));			//This contains the line in parts
 			
@@ -772,7 +838,7 @@ int main()
 				{
 					fp_mul_RS_cnt++;
 
-					FinalTable thisRow;								//Add new row to FT
+					TimingTable thisRow;								//Add new row to FT
 					thisRow.ISSUE = clk;							//Update ISSUE of new row
 					FT.push_back(thisRow);
 					code.push_back(cur_code.at(cur_code_cnt));
@@ -844,7 +910,7 @@ int main()
 						{
 							int_adder_RS_cnt++;
 
-							FinalTable thisRow;								//Add new row to FT
+							TimingTable thisRow;								//Add new row to FT
 							thisRow.ISSUE = clk;							//Update ISSUE of new row
 							FT.push_back(thisRow);
 							code.push_back(cur_code.at(cur_code_cnt));
@@ -861,13 +927,42 @@ int main()
 									int reg1_num, reg2_num, immediate, offset;
 									if ((string_list[0] == "beq") || (string_list[0] == "bne")) //If BRANCH instrn, get the 2 operands and offset(dest)
 									{
-										RS_IntAdder[i].clear();
-										int_adder_RS_cnt--;
-										/*reg1 = string_list[1];
+										branch = true;
+										
+										reg1 = string_list[1];
 										reg2 = string_list[2];
-										offset = atoi(string_list[3].c_str());
+										offset = atoi(string_list[3].c_str())/4;
+										int target_PC = code_cnt+1+offset;
 										reg1_num = atoi(reg1.substr(1,string::npos).c_str());
-										reg2_num = atoi(reg2.substr(1,string::npos).c_str());*/
+										reg2_num = atoi(reg2.substr(1,string::npos).c_str());
+
+										if (RAT_R[reg1_num] == -1)									//Get first SRC operand and update RS - V & Q vals
+											RS_IntAdder[i].Vj = R[reg1_num];						//If RAT is empty, get value from ARF - in Vj
+										else														//Else if RAT is not empty,
+										{
+											if (ROB[RAT_R[reg1_num]].Ready)							//If ROB has value, get from there - in Vj
+												RS_IntAdder[i].Vj = ROB[RAT_R[reg1_num]].Val;
+											else													//Else update Qj
+												RS_IntAdder[i].Qj = "ROB" + std::to_string((long long)RAT_R[reg1_num]);
+										}
+
+										if (RAT_R[reg2_num] == -1)									//Get first SRC operand and update RS - V & Q vals
+											RS_IntAdder[i].Vk = R[reg2_num];						//If RAT is empty, get value from ARF - in Vj
+										else														//Else if RAT is not empty,
+										{
+											if (ROB[RAT_R[reg2_num]].Ready)							//If ROB has value, get from there - in Vj
+												RS_IntAdder[i].Vk = ROB[RAT_R[reg2_num]].Val;
+											else													//Else update Qj
+												RS_IntAdder[i].Qk = "ROB" + std::to_string((long long)RAT_R[reg2_num]);
+										}
+
+										if (BTBContains(cur_code_cnt))
+											branch_PC = BTBGet(cur_code_cnt);
+										else
+										{
+											BTBAdd(cur_code_cnt, code_cnt, target_PC);
+											wait_for_branch = true;
+										}
 									}
 									else														//If NOT BRANCH, get the 2 operands and immediate val(only for addi)
 									{
@@ -918,17 +1013,19 @@ int main()
 									{
 										if (ROB[j].isEmpty())									//Get empty ROB
 										{
+											RS_IntAdder[i].Dst_Tag = j;							//Update DEST_TAG for RS
+											ROB[j].Ready = false;								//Update READY flag for ROB
 											if ((string_list[0] == "beq") || (string_list[0] == "bne"))  //!!!!!!!!!!!***************INCOMPLETE
 											{
-												//ROB[j].Type = "branch";
-												//ROB[j].Ready = false;								//Update READY flag for ROB
+												ROB[j].Dst = "";
+												ROB[j].Type = "branch";
+												ROB_cnt++;
+												ROB[j].code_cnt = code_cnt;
 											}
 											else
 											{
-												RS_IntAdder[i].Dst_Tag = j;							//Update DEST_TAG for RS
 												ROB[j].Dst = reg1;									//Update DEST for ROB
 												ROB[j].Type = "reg";								//Update TYPE for ROB
-												ROB[j].Ready = false;								//Update READY flag for ROB
 												RAT_R[reg1_num] = j;								//Update RAT
 												ROB_cnt++;
 												ROB[j].code_cnt = code_cnt;
@@ -949,7 +1046,7 @@ int main()
 							{
 								fp_adder_RS_cnt++;
 
-								FinalTable thisRow;								//Add new row to FT
+								TimingTable thisRow;								//Add new row to FT
 								thisRow.ISSUE = clk;							//Update ISSUE of new row
 								FT.push_back(thisRow);
 								code.push_back(cur_code.at(cur_code_cnt));
@@ -1016,7 +1113,7 @@ int main()
 							{
 								ls_RS_cnt++;
 
-								FinalTable thisRow;								//Add new row to FT
+								TimingTable thisRow;								//Add new row to FT
 								thisRow.ISSUE = clk;							//Update ISSUE of new row
 								FT.push_back(thisRow);
 								code.push_back(cur_code.at(cur_code_cnt));
@@ -1129,10 +1226,17 @@ int main()
 						}
 					}
 				}
-				//int FTsize = FT.size();
-				if (inc_flag)
+
+				if (inc_flag && !wait_for_branch)
 				{cur_code_cnt++; code_cnt++;}
+				if (branch && !wait_for_branch)
+					cur_code_cnt = branch_PC;
 			}
+		}
+		else if (wait_for_branch)
+		{
+			if (FT.at(FT.size()-1).EX1 == clk)
+				wait_for_branch = false;
 		}
 
 
@@ -1495,22 +1599,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	vector<vector<string>> whole_code;						//Entire code as a 2D array
 	for (int j=0; j<FT.size(); j++)
 	{
-		string delimiter = " ";								//Delimiter to seperate words on a line
-		char extras[] = ",";								//Extra chars that have to be removed from each word
-		string token = code.at(j);							//This will be looped and cut in the while loop
-		string temp;
-		vector<string> string_list;							//This will contain the line in parts
-			
-		while (token.find(delimiter) != string::npos)		//Loop to seperate a line at ", " - This will seperate the operands except the first one
-		{
-			temp = token.substr(0, token.find(delimiter));  //Get the first word
-
-			for (unsigned int i = 0; i < strlen(extras); ++i)   //Remove the extras
-			{temp.erase (std::remove(temp.begin(), temp.end(), extras[i]), temp.end());}
-			string_list.push_back(temp);
-			token = token.erase(0, token.find(delimiter)+delimiter.length());  //Cut the front of the token for the next iteration
-		}
-		string_list.push_back(token);
+		vector<string> string_list = BreakLine(code.at(j));		//This will contain the line in parts
 		whole_code.push_back(string_list);
 	}
 
@@ -1557,7 +1646,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 	
 
-	cout<<"Timing Table:"<<endl;
+	cout<<" Timing Table:"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
 	cout<<" __________________________________________"<<endl;
@@ -1773,7 +1862,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	if (totalRScnt != 0)
 	{
 		int j = 1;
-		cout << endl << endl << "Reservation Stations:" << endl ;
+		cout << endl << endl << " Reservation Stations:" << endl ;
 		cout<<"         _______________________________________";
 		for (int i=0; i<2*maxVjCol+5; i++) cout<<"_";
 		cout<<endl;
@@ -1823,13 +1912,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj);
 		}
 
-		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			cout << "RS_LS" << j++;
 			if (j-1 < 10)
 				cout<<" ";
 			cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj);
-		}
+		}*/
 
 		cout<<"        |________|_________|_________|_________|_";
 		for (int i=0; i<maxVjCol; i++) cout<<"_";
@@ -1895,7 +1984,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 			if (first)
 			{
-				cout << endl << endl << "Re-Order Buffer:" << endl;
+				cout << endl << endl << " Re-Order Buffer:" << endl;
 				cout<<"        __________________";
 				for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
 				cout<<"________"<<endl;
@@ -1971,7 +2060,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		maxThirdCol = 3;
 
 
-	cout<<"Non-zero Registers and RAT files:"<<endl<<endl;
+	cout<<" Non-zero Registers and RAT files:"<<endl<<endl;
 	cout<<"              Integer Registers:\t\tFP Registers:"<<endl;
 	first = true;
 	for (int i=0; i<32; i++)
@@ -2218,7 +2307,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 			if (first)
 			{
-				cout<<endl<<endl<<"Non-zero Memory Locations:"<<endl;
+				cout<<endl<<endl<<" Non-zero Memory Locations:"<<endl;
 				cout<<"\t ___________";
 				for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
 				cout<<endl<<"\t|  Mem[i]  | ";
@@ -2338,7 +2427,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 			if (first)
 			{
-				cout<<endl<<endl<<"Load/Store Queue"<<endl;
+				cout<<endl<<endl<<" Load/Store Queue"<<endl;
 				cout<<"\t ";
 				for (int i=0; i<maxThirdCol+maxAddSize+10; i++) cout<<"_";
 				cout<<endl;
@@ -2387,8 +2476,44 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		}
 	}
 	if (!first)
-		cout<<"\t|____|_________|_______|";
+		cout<<"\t|____|_________|_______|"<<endl;
+
+
+
+
+
+
+	first = true;
+	for (int i=0; i<8; i++)
+	{
+		if (BTB[i].cur_PC != -1)
+		{
+			if (first)
+			{
+				cout<<endl<<endl<<" Branch Target Buffer"<<endl;
+				cout<<"\t ___________________________________________"<<endl;
+				cout<<"\t| Current PC | Predicted PC | Branch Taken? |"<<endl;
+				cout<<"\t|------------|--------------|---------------|"<<endl;
+				first = false;
+			}
+			cout<<"\t|    ";
+			if (BTB[i].cur_PC < 100) cout << " ";
+			if (BTB[i].cur_PC < 10) cout << " ";
+			cout << BTB[i].cur_PC<<"    |     ";
+			if (BTB[i].cur_PC < 100) cout << " ";
+			if (BTB[i].cur_PC < 10) cout << " ";
+			cout << BTB[i].pred_PC<<"     |       ";
+			if (BTB[i].taken == true) cout << "Y";
+			else if (BTB[i].taken == false) cout << "N";
+			cout<<"       |"<<endl;
+		}
+	}
+	if (!first)
+		cout<<"\t|____________|______________|_______________|"<<endl;
+	
+
+
 		
-	cout<<endl<<endl<<"Total clock cycles = "<<clk<<endl<<endl<<"Press any key to continue...";
+	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl<<endl<<"Press any key to continue...";
 
 }
