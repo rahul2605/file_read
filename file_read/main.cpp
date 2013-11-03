@@ -293,6 +293,90 @@ string FormatLine (string line) {
 	return line;
 }
 
+//Function to break a line into it's words
+vector<string> BreakLine (string line) {
+	string delimiter = " ";								//Delimiter to seperate words on a line
+	char extras[] = ",";								//Extra chars that have to be removed from each word
+	string token = line;								//This will be looped and cut in the while loop
+	string temp;
+	vector<string> string_list;		
+	int count = 0;
+			
+	while (token.find(delimiter) != string::npos)			//Loop to seperate a line at ", " - This will seperate the operands except the first one
+	{
+		temp = token.substr(0, token.find(delimiter));		 //Get the first word
+
+		for (unsigned int i = 0; i < strlen(extras); ++i)   //Remove the extras
+			temp.erase (std::remove(temp.begin(), temp.end(), extras[i]), temp.end());
+					
+		string_list.push_back(temp);
+		token = token.erase(0, token.find(delimiter)+delimiter.length());  //Cut the front of the token for the next iteration
+		count++;
+	}
+	string_list.push_back(token);
+	return string_list;
+}
+
+//Function to parse the line
+void ParseLine(vector<string> string_list, string line) {
+	if (string_list[0] == "rob")
+	{
+		ROB_entries = atoi(string_list[3].c_str());
+	}
+	else if (string_list[0] == "integer" && string_list[1] == "adder")
+	{
+		Integer_Adder::num_FU = atoi(string_list[4].c_str());
+		Integer_Adder::cycles_EX = atoi(string_list[3].c_str());
+		Integer_Adder::num_RS = atoi(string_list[2].c_str());
+	}
+	else if (string_list[0] == "fp" && string_list[1] == "adder")
+	{
+		FP_Adder::num_FU = atoi(string_list[4].c_str());
+		FP_Adder::cycles_EX = atoi(string_list[3].c_str());
+		FP_Adder::num_RS = atoi(string_list[2].c_str());
+	}
+	else if (string_list[0] == "fp" && string_list[1] == "multiplier")
+	{
+		FP_Multiplier::num_FU = atoi(string_list[4].c_str());
+		FP_Multiplier::cycles_EX = atoi(string_list[3].c_str());
+		FP_Multiplier::num_RS = atoi(string_list[2].c_str());
+	}
+	else if (string_list[0] == "load/store" && string_list[1] == "unit")
+	{
+		LS_Unit::num_FU = atoi(string_list[5].c_str());
+		LS_Unit::cycles_MEM = atoi(string_list[4].c_str());
+		LS_Unit::cycles_EX = atoi(string_list[3].c_str());
+		LS_Unit::num_RS = atoi(string_list[2].c_str());
+	}
+	else if (string_list[0].find('=') != string::npos)
+	{
+		for (int i=0; i < string_list.size(); i++)
+		{
+			if (string_list[i].at(0) == 'r')
+			{
+				int reg_num = atoi(string_list[i].substr(1,string_list[i].find('=')-1).c_str());
+				int reg_val = atoi(string_list[i].substr(string_list[i].find('=')+1,string::npos).c_str());
+				R[reg_num] = reg_val;
+			}
+			else if (string_list[i].at(0) == 'f')
+			{
+				int reg_num = atoi(string_list[i].substr(1,string_list[i].find('=')-1).c_str());
+				float reg_val = std::stof(string_list[i].substr(string_list[i].find('=')+1,string::npos));
+				F[reg_num] = reg_val;
+			}
+			else if (string_list[i].at(0) == 'm')
+			{
+				int mem_add = atoi(string_list[i].substr(4,string_list[i].find(']')-1).c_str());
+				float mem_val = atof(string_list[i].substr(string_list[i].find('=')+1,string::npos).c_str());
+				Mem[mem_add] = mem_val;
+			}
+		}
+	}
+	else if (!string_list.empty() && (string_list.size() < 5))
+		code.push_back(line);
+}
+
+
 void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB);
 
 
@@ -309,95 +393,17 @@ int main()
 		{
 			if (!line.empty())
 			{
-				line = FormatLine(line);
-
-				string delimiter = " ";								//Delimiter to seperate words on a line
-				char extras[] = ",";								//Extra chars that have to be removed from each word
-				string token = line;								//This will be looped and cut in the while loop
-				string temp;
-				vector<string> string_list;		
-				int count = 0;
-			
-				while (token.find(delimiter) != string::npos)		//Loop to seperate a line at ", " - This will seperate the operands except the first one
-				{
-					temp = token.substr(0, token.find(delimiter));  //Get the first word
-
-					for (unsigned int i = 0; i < strlen(extras); ++i)   //Remove the extras
-					{
-					 // you need include <algorithm> to use general algorithms like std::remove()
-						temp.erase (std::remove(temp.begin(), temp.end(), extras[i]), temp.end());
-					}
-					string_list.push_back(temp);
-					token = token.erase(0, token.find(delimiter)+delimiter.length());  //Cut the front of the token for the next iteration
-					count++;
-				}
-				string_list.push_back(token);
-				
-				
-				if (string_list[0] == "rob")
-				{
-					ROB_entries = atoi(string_list[3].c_str());
-				}
-				else if (string_list[0] == "integer" && string_list[1] == "adder")
-				{
-					Integer_Adder::num_FU = atoi(string_list[4].c_str());
-					Integer_Adder::cycles_EX = atoi(string_list[3].c_str());
-					Integer_Adder::num_RS = atoi(string_list[2].c_str());
-				}
-				else if (string_list[0] == "fp" && string_list[1] == "adder")
-				{
-					FP_Adder::num_FU = atoi(string_list[4].c_str());
-					FP_Adder::cycles_EX = atoi(string_list[3].c_str());
-					FP_Adder::num_RS = atoi(string_list[2].c_str());
-				}
-				else if (string_list[0] == "fp" && string_list[1] == "multiplier")
-				{
-					FP_Multiplier::num_FU = atoi(string_list[4].c_str());
-					FP_Multiplier::cycles_EX = atoi(string_list[3].c_str());
-					FP_Multiplier::num_RS = atoi(string_list[2].c_str());
-				}
-				else if (string_list[0] == "load/store" && string_list[1] == "unit")
-				{
-					LS_Unit::num_FU = atoi(string_list[5].c_str());
-					LS_Unit::cycles_MEM = atoi(string_list[4].c_str());
-					LS_Unit::cycles_EX = atoi(string_list[3].c_str());
-					LS_Unit::num_RS = atoi(string_list[2].c_str());
-				}
-				else if (string_list[0].find('=') != string::npos)
-				{
-					for (int i=0; i < string_list.size(); i++)
-					{
-						if (string_list[i].at(0) == 'r')
-						{
-							int reg_num = atoi(string_list[i].substr(1,string_list[i].find('=')-1).c_str());
-							int reg_val = atoi(string_list[i].substr(string_list[i].find('=')+1,string::npos).c_str());
-							R[reg_num] = reg_val;
-						}
-						else if (string_list[i].at(0) == 'f')
-						{
-							int reg_num = atoi(string_list[i].substr(1,string_list[i].find('=')-1).c_str());
-							float reg_val = std::stof(string_list[i].substr(string_list[i].find('=')+1,string::npos));
-							//float reg_val = atof(string_list[i].substr(string_list[i].find('=')+1,string::npos).c_str());
-							F[reg_num] = reg_val;
-						}
-						else if (string_list[i].at(0) == 'm')
-						{
-							int mem_add = atoi(string_list[i].substr(4,string_list[i].find(']')-1).c_str());
-							float mem_val = atof(string_list[i].substr(string_list[i].find('=')+1,string::npos).c_str());
-							Mem[mem_add] = mem_val;
-						}
-					}
-				}
-				else if (!string_list.empty() && (string_list.size() < 5))
-					code.push_back(line);
+				line = FormatLine(line);						//Function to remove extra tabs and spaces and convert to lowercase
+				vector<string> string_list = BreakLine(line);	//Function to break a line into it's words		
+				ParseLine(string_list, line);					//Function to parse the line
 			}
 		}
-		
 		myfile.close();
 	} 
 	else														//If file cannot be opened, show error
 		cout << "Error opening file.";
 
+	//Print the initial state before starting the algorithm to confirm that data is parsed correctly
 	cout<<endl<<"                # of rs    Cycles in Ex    Cycles in Mem    # of FUs"<<endl;
 	cout<<"Integer Adder\t  "<<Integer_Adder::num_RS<<"\t\t"<<Integer_Adder::cycles_EX<<"\t\t"<<Integer_Adder::cycles_MEM<<"\t\t"<<Integer_Adder::num_FU<<endl;
 	cout<<"FP Adder\t  "<<FP_Adder::num_RS<<"\t\t"<<FP_Adder::cycles_EX<<"\t\t"<<FP_Adder::cycles_MEM<<"\t\t"<<FP_Adder::num_FU<<endl;
@@ -442,14 +448,12 @@ int main()
 
 
 	unsigned int code_cnt=0;
+	unsigned int cur_code_cnt = 0;
 
-	while ((code_cnt != code.size()) || (FT.at(FT.size()-1).COMMIT == 0))
+	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0))
 	{
-		//if (clk > 17)
-		//{
-			print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-			getch();
-		//}
+		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+		getch();
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
@@ -474,10 +478,7 @@ int main()
 									{
 										RAT_R[num] = -1;
 										R[num] = ROB[j].Val;
-										//ROB[j].clear1();
-										//break;
 									}
-									//else
 										ROB[j].clear();
 									break;
 								}
@@ -488,10 +489,7 @@ int main()
 									{
 										RAT_F[num] = -1;
 										F[num] = ROB[j].Val;
-										//ROB[j].clear1();
-										//break;
 									}
-									//else
 										ROB[j].clear();
 									break;
 								}
@@ -763,27 +761,10 @@ int main()
 		
 		if (code_cnt < code.size())
 		{
-			string delimiter = " ";								//Delimiter to seperate words on a line
-			char extras[] = ",";								//Extra chars that have to be removed from each word
-			string token = code.at(code_cnt);					//This will be looped and cut in the while loop
-			string temp;
-			vector<string> string_list;							//This will contain the line in parts
+			vector<string> string_list = BreakLine(code.at(code_cnt));			//This contains the line in parts
 			
-			while (token.find(delimiter) != string::npos)		//Loop to seperate a line at ", " - This will seperate the operands except the first one
-			{
-				temp = token.substr(0, token.find(delimiter));  //Get the first word
-
-				for (unsigned int i = 0; i < strlen(extras); ++i)   //Remove the extras
-				{temp.erase (std::remove(temp.begin(), temp.end(), extras[i]), temp.end());}
-				string_list.push_back(temp);
-				token = token.erase(0, token.find(delimiter)+delimiter.length());  //Cut the front of the token for the next iteration
-			}
-			string_list.push_back(token);
-
-
 			string operation = string_list[0];
-			std::replace( operation.begin(), operation.end(), '.', '_');
-
+			std::replace(operation.begin(), operation.end(), '.', '_');
 
 			bool inc_flag = false;									//Flag that tells us if we should increment the PC during this clk cycle - defalut=don't
 			if (ROB_cnt < ROB_entries)
