@@ -19,7 +19,7 @@ string IntAdderInstrns[5] = {"beq", "bne", "add", "addi", "sub"};
 string FPAdderInstrns[2] = {"add_d", "sub_d"};
 string FPMulInstrns[2] = {"mult_d", "div_d"};
 string LDInstrns[2] = {"ld", "sd"};
-vector<string> code;									//Contains the lines of code
+vector<string> cur_code, code;									//Contains the lines of code
 
 
 
@@ -373,7 +373,7 @@ void ParseLine(vector<string> string_list, string line) {
 		}
 	}
 	else if (!string_list.empty() && (string_list.size() < 5))
-		code.push_back(line);
+		cur_code.push_back(line);
 }
 
 
@@ -758,10 +758,9 @@ int main()
 		////////////////////////////////////////ISSUE////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////
 
-		
-		if (code_cnt < code.size())
+		if (cur_code_cnt < cur_code.size())
 		{
-			vector<string> string_list = BreakLine(code.at(code_cnt));			//This contains the line in parts
+			vector<string> string_list = BreakLine(cur_code.at(cur_code_cnt));			//This contains the line in parts
 			
 			string operation = string_list[0];
 			std::replace(operation.begin(), operation.end(), '.', '_');
@@ -776,6 +775,7 @@ int main()
 					FinalTable thisRow;								//Add new row to FT
 					thisRow.ISSUE = clk;							//Update ISSUE of new row
 					FT.push_back(thisRow);
+					code.push_back(cur_code.at(cur_code_cnt));
 					inc_flag = true;								//Flag that tells us if we should increment the PC during this clk cycle
 
 					for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
@@ -847,6 +847,7 @@ int main()
 							FinalTable thisRow;								//Add new row to FT
 							thisRow.ISSUE = clk;							//Update ISSUE of new row
 							FT.push_back(thisRow);
+							code.push_back(cur_code.at(cur_code_cnt));
 							inc_flag = true;								//Flag that tells us if we should increment the PC during this clk cycle
 
 							for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++)
@@ -951,6 +952,7 @@ int main()
 								FinalTable thisRow;								//Add new row to FT
 								thisRow.ISSUE = clk;							//Update ISSUE of new row
 								FT.push_back(thisRow);
+								code.push_back(cur_code.at(cur_code_cnt));
 								inc_flag = true;								//Flag that tells us if we should increment the PC during this clk cycle
 
 								for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
@@ -1017,6 +1019,7 @@ int main()
 								FinalTable thisRow;								//Add new row to FT
 								thisRow.ISSUE = clk;							//Update ISSUE of new row
 								FT.push_back(thisRow);
+								code.push_back(cur_code.at(cur_code_cnt));
 								inc_flag = true;								//Flag that tells us if we should increment the PC during this clk cycle
 
 								LS_Queue qRow;
@@ -1128,7 +1131,7 @@ int main()
 				}
 				//int FTsize = FT.size();
 				if (inc_flag)
-					code_cnt++;
+				{cur_code_cnt++; code_cnt++;}
 			}
 		}
 
