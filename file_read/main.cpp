@@ -428,7 +428,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_LS.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Rohit.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -496,8 +496,8 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0))
 	{
-		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-		getch();
+		//print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+		//getch();
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
@@ -511,9 +511,9 @@ int main()
 					if (FT.at(i).WB != 0)
 					{
 						FT.at(i).COMMIT = clk;
-						for (int j=0; j<ROB_cnt; j++)
+						for (int j=0; j<ROB_entries; j++)
 						{
-							if (ROB[j].code_cnt == i)
+							if (!ROB[j].isEmpty() && ROB[j].code_cnt == i)
 							{
 								if (ROB[j].Dst.at(0) == 'r')
 								{
@@ -523,7 +523,8 @@ int main()
 										RAT_R[num] = -1;
 										R[num] = ROB[j].Val;
 									}
-										ROB[j].clear();
+									ROB[j].clear();
+									ROB_cnt--;
 									break;
 								}
 								else if (ROB[j].Dst.at(0) == 'f')
@@ -534,7 +535,8 @@ int main()
 										RAT_F[num] = -1;
 										F[num] = ROB[j].Val;
 									}
-										ROB[j].clear();
+									ROB[j].clear();
+									ROB_cnt--;
 									break;
 								}
 								else if (ROB[j].Dst.at(0) == 'l')										//Store instruction
@@ -542,7 +544,7 @@ int main()
 									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(3, string::npos).c_str());			//Get LSQ entry number
 									int add;															//Get Mem address from LSQ
-									if (LSQ.at(num).address.find('+') != string::npos)
+									if (LSQ.at(num).address.find('+') != string::npos)					//Calculate address if it's not calculated
 									{
 										int offset = atoi(LSQ.at(num).address.substr(0, LSQ.at(num).address.find('+')).c_str());
 										//int r_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('R')+1, string::npos).c_str());
@@ -571,17 +573,19 @@ int main()
 									ROB[j].Val = val;
 
 									LSQ.at(num).clear();												//Clear LSQ
-									for (int k=0; k<LS_Unit::num_RS*LS_Unit::num_FU; k++)								//Clear RS
+									for (int k=0; k<LS_Unit::num_RS*LS_Unit::num_FU; k++)				//Clear RS
 									{
 										if (RS_LSU[k].code_cnt == ROB[j].code_cnt)
 										{
 											RS_LSU[k].clear();
 											ls_RS_cnt--;
-											ROB[j].clear();
+											//ROB[j].clear();
+											//ROB_cnt--;
 											break;
 										}
 									}
 									ROB[j].clear();
+									ROB_cnt--;
 								}
 							}
 						}
@@ -1257,12 +1261,13 @@ int main()
 		{
 			for (int i=0; i<FT.size(); i++)
 			{
-				if (FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk)
+				if (!CBD_full && FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk)
 				{
 					FT.at(i).WB = clk;
 					for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)
 					{
-						if (!CBD_full && !RS_IntAdder[j].isEmpty() && RS_IntAdder[j].code_cnt == i)
+						string op = RS_IntAdder[j].Op;
+						if (!RS_IntAdder[j].isEmpty() && RS_IntAdder[j].code_cnt == i)
 						{
 							if (RS_IntAdder[j].Op == "add" || RS_IntAdder[j].Op == "addi")
 							{
@@ -1356,7 +1361,7 @@ int main()
 
 					for (int j=0; j<FP_Adder::num_RS*FP_Adder::num_FU; j++)
 					{
-						if (!CBD_full && !RS_FPAdder[j].isEmpty() && RS_FPAdder[j].code_cnt == i)
+						if (!RS_FPAdder[j].isEmpty() && RS_FPAdder[j].code_cnt == i)
 						{
 							if (RS_FPAdder[j].Op == "add.d")
 							{
@@ -1427,7 +1432,7 @@ int main()
 
 					for (int j=0; j<FP_Multiplier::num_RS*FP_Multiplier::num_FU; j++)
 					{
-						if (!CBD_full && !RS_FPMultiplier[j].isEmpty() && RS_FPMultiplier[j].code_cnt == i)
+						if (!RS_FPMultiplier[j].isEmpty() && RS_FPMultiplier[j].code_cnt == i)
 						{
 							if (RS_FPMultiplier[j].Op == "mult.d")
 							{
@@ -1498,7 +1503,7 @@ int main()
 
 					for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)
 					{
-						if (!CBD_full && !RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i)
+						if (!RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i)
 						{
 							if (FT.at(i).MEM1 != 0 && FT.at(i).MEM1 < clk)
 							{
@@ -1570,6 +1575,7 @@ int main()
 									RS_LSU[j].clear();
 									ls_RS_cnt--;
 									CBD_full = true;
+									break;
 								}
 								else if (RS_LSU[j].Op == "sd")
 								{
@@ -1580,11 +1586,11 @@ int main()
 							}
 							else
 								FT.at(i).WB = 0;
-							break;
+							//break;
 						}
 					}
 
-					break;
+					//break;
 				}
 			}
 		}
