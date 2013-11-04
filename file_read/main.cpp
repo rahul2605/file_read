@@ -416,7 +416,7 @@ void ParseLine(vector<string> string_list, string line) {
 			}
 		}
 	}
-	else if (!string_list.empty() && (string_list.size() < 5))
+	else if (!string_list.empty() && (string_list.size() < 5) && (string_list.size() > 2))
 		cur_code.push_back(line);
 }
 
@@ -428,7 +428,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\test2.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_LS.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -774,11 +774,18 @@ int main()
 		}
 
 		FU_occupied = 0;
+		bool address_ready = true;
 		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			if (!RS_LSU[i].isEmpty()  && RS_LSU[i].Qj == "" && RS_LSU[i].Qk == "")
 			{
-				if (FT.at(RS_LSU[i].code_cnt).EX0 == 0)
+				for (int j=0; j<LSQ.size(); j++)
+				{
+					if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt)
+						if (LSQ.at(j).address.find('+') != string::npos)
+						{address_ready = false; break;}
+				}
+				if (FT.at(RS_LSU[i].code_cnt).EX0 == 0 && address_ready)
 				{
 					FT.at(RS_LSU[i].code_cnt).EX0 = clk;
 					FT.at(RS_LSU[i].code_cnt).EX1 = clk + LS_Unit::cycles_EX - 1;
@@ -1675,7 +1682,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		else if (whole_code.at(i).size() == 3)
 		{
 			int temp = max_len[0] + max_len[1] + whole_code.at(i).at(2).size() + 3;
-			for (int j=temp; j<maxCodeLength-1; j++)
+			for (int j=temp; j<maxCodeLength-2; j++)
 				cout<<" ";
 		}
 		
@@ -1697,7 +1704,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	int maxFractPartVk = 0;
 	int maxVjCol = 0;
 	
-	int totalRScnt = int_adder_RS_cnt + fp_adder_RS_cnt + fp_mul_RS_cnt; //+ ls_RS_cnt 
+	int totalRScnt = int_adder_RS_cnt + fp_adder_RS_cnt + fp_mul_RS_cnt + ls_RS_cnt;
 	if (totalRScnt != 0)
 	{
 		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++) 
@@ -1808,7 +1815,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			}
 		}
 
-		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			if (!RS_LSU[i].isEmpty())
 			{
@@ -1842,7 +1849,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 						maxIntPartVk = ss1.str().size();
 				}
 			}
-		}*/
+		}
 	}
 
 
@@ -1912,13 +1919,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj);
 		}
 
-		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			cout << "RS_LS" << j++;
 			if (j-1 < 10)
 				cout<<" ";
 			cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj);
-		}*/
+		}
 
 		cout<<"        |________|_________|_________|_________|_";
 		for (int i=0; i<maxVjCol; i++) cout<<"_";
