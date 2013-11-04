@@ -428,7 +428,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Rohit.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_SH_ROB.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -517,26 +517,28 @@ int main()
 							{
 								if (ROB[j].Dst.at(0) == 'r')
 								{
+									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(1, string::npos).c_str());
 									if (RAT_R[num] == j)
 									{
 										RAT_R[num] = -1;
 										R[num] = ROB[j].Val;
 									}
-									ROB[j].clear();
-									ROB_cnt--;
+									//ROB[j].clear();
+									//ROB_cnt--;
 									break;
 								}
 								else if (ROB[j].Dst.at(0) == 'f')
 								{
+									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(1, string::npos).c_str());
 									if (RAT_F[num] == j)
 									{
 										RAT_F[num] = -1;
 										F[num] = ROB[j].Val;
 									}
-									ROB[j].clear();
-									ROB_cnt--;
+									//ROB[j].clear();
+									//ROB_cnt--;
 									break;
 								}
 								else if (ROB[j].Dst.at(0) == 'l')										//Store instruction
@@ -584,8 +586,8 @@ int main()
 											break;
 										}
 									}
-									ROB[j].clear();
-									ROB_cnt--;
+									//ROB[j].clear();
+									//ROB_cnt--;
 								}
 							}
 						}
@@ -1250,6 +1252,18 @@ int main()
 				wait_for_branch = false;
 		}
 
+
+
+
+		///////////Clear ROBs////////////
+		for (int i=0; i<ROB_entries; i++)
+		{
+			if (!ROB[i].isEmpty() && ROB[i].Ready)
+			{
+				ROB[i].clear();
+				ROB_cnt--;
+			}
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////////////////////

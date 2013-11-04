@@ -1,4 +1,4 @@
-﻿Build started 11/4/2013 1:50:39 PM.
+﻿Build started 11/4/2013 2:36:11 PM.
 Project "\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\file_read\file_read.vcxproj" on node 2 (build target(s)).
 InitializeBuildStatus:
   Creating "Debug\file_read.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -8,88 +8,88 @@ ClCompile:
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(397): warning C4018: '<' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(414): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(507): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(524): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(553): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(562): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(569): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(615): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(786): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(798): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(802): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(951): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(961): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(991): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1002): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1007): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1158): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1166): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1262): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1340): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1346): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1512): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1517): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1604): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _getch. See online help for details.
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(525): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(555): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(564): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(571): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(617): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(788): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(800): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(804): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(953): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(963): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(993): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1004): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1009): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1160): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1168): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1276): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1354): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1360): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1526): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1531): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1618): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _getch. See online help for details.
           c:\program files (x86)\microsoft visual studio 10.0\vc\include\conio.h(128) : see declaration of 'getch'
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1613): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1621): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1626): warning C4018: '>=' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1636): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1648): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1672): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1724): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1726): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1731): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1739): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1741): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1746): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1627): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1635): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1640): warning C4018: '>=' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1650): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1662): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1686): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1738): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1740): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1745): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1753): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1755): warning C4018: '>' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1760): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1762): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1767): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1775): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1777): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1782): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1774): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1776): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1781): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1789): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1791): warning C4018: '>' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1796): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1798): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1803): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1811): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1813): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1818): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1810): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1812): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1817): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1825): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1827): warning C4018: '>' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1832): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1834): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1839): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1847): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1849): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1854): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1959): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1961): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1966): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2043): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1846): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1848): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1853): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1861): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1863): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1868): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1973): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1975): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(1980): warning C4018: '>' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2057): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2059): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2064): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2278): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2280): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2285): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2371): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2375): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2381): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2383): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2388): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2392): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2413): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2481): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2479) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2413) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2482): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2479) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2413) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2485): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2479) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2413) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2486): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2479) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2413) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2486): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2071): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2073): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2078): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2292): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2294): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2299): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2385): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2389): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2395): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2397): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2402): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2406): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2427): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2495): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2493) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2427) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2496): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2493) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2427) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2499): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2493) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2427) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2500): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2493) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2427) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2500): warning C4018: '<' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(287): warning C4715: 'BTBGet' : not all control paths return a value
 Link:
   C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\Debug\file_read.exe" /INCREMENTAL:NO /NOLOGO systemc.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\file_read.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\Debug\file_read.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\Debug\file_read.lib" /MACHINE:X86 Debug\main.obj
@@ -104,4 +104,4 @@ Done Building Project "\\psf\Home\Documents\Visual Studio 2010\Projects\file_rea
 
 Build succeeded.
 
-Time Elapsed 00:00:02.17
+Time Elapsed 00:00:02.19
