@@ -428,7 +428,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Rohit.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_SH_ROB.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -496,8 +496,8 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0))
 	{
-		//print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-		//getch();
+		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+		getch();
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
@@ -517,6 +517,7 @@ int main()
 							{
 								if (ROB[j].Dst.at(0) == 'r')
 								{
+									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(1, string::npos).c_str());
 									if (RAT_R[num] == j)
 									{
@@ -529,6 +530,7 @@ int main()
 								}
 								else if (ROB[j].Dst.at(0) == 'f')
 								{
+									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(1, string::npos).c_str());
 									if (RAT_F[num] == j)
 									{
@@ -539,54 +541,69 @@ int main()
 									ROB_cnt--;
 									break;
 								}
-								else if (ROB[j].Dst.at(0) == 'l')										//Store instruction
+							}
+						}
+					}
+
+					else if (FT.at(i).WB == 0 && FT.at(i).EX1 < clk)
+					{
+						for (int j=0; j<ROB_entries; j++)
+						{
+							string temp = ROB[j].Type;
+							int tem = ROB[j].code_cnt;
+							if (!ROB[j].isEmpty() && (ROB[j].code_cnt == i) && (ROB[j].Type == "store")) //STORE instruction
+							{
+								FT.at(i).COMMIT = clk;
+								ROB[j].Ready = true;
+								int num = atoi(ROB[j].Dst.substr(3, string::npos).c_str());			//Get LSQ entry number
+								int add;															//Get Mem address from LSQ
+								if (LSQ.at(num).address.find('+') != string::npos)					//Calculate address if it's not calculated
 								{
-									ROB[j].Ready = true;
-									int num = atoi(ROB[j].Dst.substr(3, string::npos).c_str());			//Get LSQ entry number
-									int add;															//Get Mem address from LSQ
-									if (LSQ.at(num).address.find('+') != string::npos)					//Calculate address if it's not calculated
-									{
-										int offset = atoi(LSQ.at(num).address.substr(0, LSQ.at(num).address.find('+')).c_str());
-										//int r_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('R')+1, string::npos).c_str());
-										//add = offset + R[r_val];
-										int rob_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('B')+1, string::npos).c_str());
-										add = offset + ROB[rob_val].Val;
-									}
-									else
-										add = atoi(LSQ.at(num).address.c_str());
-
-									int r_num;
-									float val;
-									if (LSQ.at(num).val.find('R') != string::npos)						//If LSQ has ROB number	
-									{
-										r_num = atof(LSQ.at(num).val.substr(3, string::npos).c_str());	//Get ROB number from LSQ,
-										string temp_code = code.at(LSQ.at(num).code_cnt);
-										int r2_num = atoi(temp_code.substr(temp_code.find('r')+1,temp_code.find(')')-temp_code.find('r')-1).c_str());
-										val = ROB[r_num].Val;											//Get val from ROB
-									}		
-									else																//Else if LSQ has actual value
-									{
-										val = atof(LSQ.at(num).val.c_str());							//Get val number from LSQ
-									}
-									
-									Mem[add] = val;														//Update Mem with val
-									ROB[j].Val = val;
-
-									LSQ.at(num).clear();												//Clear LSQ
-									for (int k=0; k<LS_Unit::num_RS*LS_Unit::num_FU; k++)				//Clear RS
-									{
-										if (RS_LSU[k].code_cnt == ROB[j].code_cnt)
-										{
-											RS_LSU[k].clear();
-											ls_RS_cnt--;
-											//ROB[j].clear();
-											//ROB_cnt--;
-											break;
-										}
-									}
-									ROB[j].clear();
-									ROB_cnt--;
+									int offset = atoi(LSQ.at(num).address.substr(0, LSQ.at(num).address.find('+')).c_str());
+									//int r_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('R')+1, string::npos).c_str());
+									//add = offset + R[r_val];
+									int rob_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('B')+1, string::npos).c_str());
+									add = offset + ROB[rob_val].Val;
 								}
+								else
+									add = atoi(LSQ.at(num).address.c_str());
+
+								int r_num;
+								float val;
+								if (LSQ.at(num).val.find('R') != string::npos)						//If LSQ has ROB number	
+								{
+									r_num = atof(LSQ.at(num).val.substr(3, string::npos).c_str());	//Get ROB number from LSQ,
+									string temp_code = code.at(LSQ.at(num).code_cnt);
+									int r2_num = atoi(temp_code.substr(temp_code.find('r')+1,temp_code.find(')')-temp_code.find('r')-1).c_str());
+									val = ROB[r_num].Val;											//Get val from ROB
+								}		
+								else																//Else if LSQ has actual value
+								{
+									val = atof(LSQ.at(num).val.c_str());							//Get val number from LSQ
+								}
+									
+								Mem[add] = val;														//Update Mem with val
+								ROB[j].Val = val;
+
+								LSQ.at(num).clear();												//Clear LSQ
+								for (int k=0; k<LS_Unit::num_RS*LS_Unit::num_FU; k++)				//Clear RS
+								{
+									if (RS_LSU[k].code_cnt == ROB[j].code_cnt)
+									{
+										RS_LSU[k].clear();
+										ls_RS_cnt--;
+										//ROB[j].clear();
+										//ROB_cnt--;
+										break;
+									}
+								}
+								ROB[j].clear();
+								ROB_cnt--;
+							}
+
+							else if (!ROB[j].isEmpty() && (ROB[j].code_cnt == i) && (ROB[j].Type == "branch"))			//BRANCH instruction
+							{
+								FT.at(i).COMMIT = clk;
 							}
 						}
 					}
@@ -609,8 +626,8 @@ int main()
 			{
 				if (FT.at(RS_LSU[i].code_cnt).MEM0 == 0 && FT.at(RS_LSU[i].code_cnt).EX1 != 0 && FT.at(RS_LSU[i].code_cnt).EX1 < clk)
 				{
-					FT.at(RS_LSU[i].code_cnt).MEM0 = clk;
-					FT.at(RS_LSU[i].code_cnt).MEM1 = clk + LS_Unit::cycles_MEM - 1;
+					//FT.at(RS_LSU[i].code_cnt).MEM0 = clk;
+					//FT.at(RS_LSU[i].code_cnt).MEM1 = clk + LS_Unit::cycles_MEM - 1;
 
 					for (int j=0; j<LSQ.size(); j++)
 					{
@@ -619,6 +636,9 @@ int main()
 							int add = atoi(LSQ.at(j).address.c_str());
 							if (RS_LSU[i].Op == "ld")
 							{
+								FT.at(RS_LSU[i].code_cnt).MEM0 = clk;
+								FT.at(RS_LSU[i].code_cnt).MEM1 = clk + LS_Unit::cycles_MEM - 1;
+
 								bool can_load = true;
 								for (int l=0; l<j; l++)
 									if (LSQ.at(l).op == "S" && LSQ.at(l).address.find('+') != string::npos)
@@ -655,7 +675,7 @@ int main()
 									else											//Else if dependency found, get value from previous LSQ row
 									{
 										val = LSQ.at(found_num).val;
-										FT.at(RS_LSU[i].code_cnt).MEM1++;			//Add 1 more cycle to Memory access time
+										FT.at(RS_LSU[i].code_cnt).MEM1 = FT.at(RS_LSU[i].code_cnt).MEM1 - 3;  //Just keep 1 cycle for Memory access time
 									}
 
 									LSQ.at(j).val = val;
@@ -1252,6 +1272,9 @@ int main()
 
 
 
+
+
+
 		//////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////WRITE BACK////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -1261,7 +1284,7 @@ int main()
 		{
 			for (int i=0; i<FT.size(); i++)
 			{
-				if (!CBD_full && FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk)
+				if (!CBD_full && FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk && FT.at(i).COMMIT == 0)
 				{
 					FT.at(i).WB = clk;
 					for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)
@@ -1503,6 +1526,7 @@ int main()
 
 					for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)
 					{
+						
 						if (!RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i)
 						{
 							if (FT.at(i).MEM1 != 0 && FT.at(i).MEM1 < clk)
@@ -1579,6 +1603,7 @@ int main()
 								}
 								else if (RS_LSU[j].Op == "sd")
 								{
+									FT.at(i).WB = 0;
 									/*ROB[RS_LSU[j].Dst_Tag].Val = RS_LSU[j].Vj - RS_LSU[j].Vk;
 									ROB[RS_LSU[j].Dst_Tag].Ready = true;*/
 								}
@@ -2447,11 +2472,11 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				cout<<"\t| Op | ";
 				for (int i=0; i<(maxAddSize-7)/2; i++) cout<<" ";
 				cout<<"Address";
-				for (int i=0; i<(maxAddSize-7)/2; i++) cout<<" ";
+				for (int i=0; i<(maxAddSize-6)/2; i++) cout<<" ";
 				cout<<" | ";
 				for (int i=0; i<(maxThirdCol-5)/2; i++) cout<<" ";
 				cout<<"Value";
-				for (int i=0; i<(maxThirdCol-5)/2; i++) cout<<" ";
+				for (int i=0; i<(maxThirdCol-4)/2; i++) cout<<" ";
 				cout<< " |"<<endl;
 				cout<<"\t|----|---------|";
 				for (int i=0; i<maxThirdCol+2; i++) cout<<"-";
@@ -2489,7 +2514,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		}
 	}
 	if (!first)
-		cout<<"\t|____|_________|_______|"<<endl;
+	{	
+		cout<<"\t|____|_";
+		for (int i=0; i<maxAddSize; i++) cout<<"_";
+		cout<<"_|_";
+		for (int i=0; i<maxThirdCol ; i++) cout<<"_";
+		cout<<"_|"<<endl;
+	}
 
 
 
