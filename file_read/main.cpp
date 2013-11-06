@@ -430,7 +430,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_LS_load_wait.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_All.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -498,8 +498,8 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0))
 	{
-		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-		getch();
+		//print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+		//getch();
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
