@@ -46,7 +46,9 @@ public: void print()
 			}
 			cout<<"  |  ";
 			if (WB < 10) {cout<<" ";}
-			cout<<WB<<"  |   ";
+			if (WB == 0) cout << "-";
+			else cout << WB;
+			cout<<"  |   ";
 			if (COMMIT < 10) {cout<<" ";}
 			cout<<COMMIT<<"   |"<<endl;
 		}
@@ -428,7 +430,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_SH_ROB.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_LS_load_wait.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -620,94 +622,80 @@ int main()
 		///////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////MEMORY/////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////////////////////////
+		bool mem_done = false;
 		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
-			if (!RS_LSU[i].isEmpty() && RS_LSU[i].Qj == "" && RS_LSU[i].Qk == "")
+			if (!RS_LSU[i].isEmpty() && RS_LSU[i].Qj == "" && RS_LSU[i].Qk == "")														//Find a ready LSU RS
 			{
-				if (FT.at(RS_LSU[i].code_cnt).MEM0 == 0 && FT.at(RS_LSU[i].code_cnt).EX1 != 0 && FT.at(RS_LSU[i].code_cnt).EX1 < clk)
+				if (FT.at(RS_LSU[i].code_cnt).MEM0 == 0 && FT.at(RS_LSU[i].code_cnt).EX1 != 0 && FT.at(RS_LSU[i].code_cnt).EX1 < clk)	//If the corresponding function has executed
 				{
-					//FT.at(RS_LSU[i].code_cnt).MEM0 = clk;
-					//FT.at(RS_LSU[i].code_cnt).MEM1 = clk + LS_Unit::cycles_MEM - 1;
-
-					for (int j=0; j<LSQ.size(); j++)
+					for (int j=0; j<LSQ.size(); j++)																					//Get the corresponding LSQ
 					{
-						if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt)
+						if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt && RS_LSU[i].Op == "ld")											//If LOAD function
 						{
 							int add = atoi(LSQ.at(j).address.c_str());
-							if (RS_LSU[i].Op == "ld")
+
+							bool can_load = true;														//Flag to see if the addresses of all Stores above it are known
+							for (int l=0; l<j; l++)
+								if (LSQ.at(l).op == "S" && LSQ.at(l).address.find('+') != string::npos)	{can_load = false; break;}
+
+							if (can_load)
 							{
-								FT.at(RS_LSU[i].code_cnt).MEM0 = clk;
+								FT.at(RS_LSU[i].code_cnt).MEM0 = clk;										//Update MEM feilds
 								FT.at(RS_LSU[i].code_cnt).MEM1 = clk + LS_Unit::cycles_MEM - 1;
 
-								bool can_load = true;
-								for (int l=0; l<j; l++)
-									if (LSQ.at(l).op == "S" && LSQ.at(l).address.find('+') != string::npos)
-									{can_load = false; break;}
-								if (can_load)
+								bool found = false;								//Flag to see if forwarding-from-store is needed
+								int found_num = 0;								//LSQ number from where to gt data if F-F-S is required
+								for (int k=j-1; k>=0; k--)						//Check LSQ starting from the most recent entry
 								{
-									bool found = false;								//Flag to see if forwarding-from-store is needed
-									int found_num = 0;								//LSQ number from where to gt data if F-F-S is required
-									for (int k=j-1; k>=0; k--)						//Check LSQ starting from the most recent entry
+									if (LSQ.at(k).address == LSQ.at(j).address) //If address of another entry matches, check if it is a STORE
 									{
-										if (LSQ.at(k).address == LSQ.at(j).address) //If address of another entry matches, check if it is a STORE
+										for (int l=0; l<LS_Unit::num_RS*LS_Unit::num_FU; l++)   //Get the RS associated with the matching LSQ entry
 										{
-											for (int l=0; l<LS_Unit::num_RS*LS_Unit::num_FU; l++)   //Get the RS associated with the matching LSQ entry
+											if ((RS_LSU[l].code_cnt == LSQ.at(k).code_cnt) && (RS_LSU[l].Op == "sd")) //If it is a store,
 											{
-												if ((RS_LSU[l].code_cnt == LSQ.at(k).code_cnt) && (RS_LSU[l].Op == "sd")) //If it is a store,
-												{
-													found_num = k;					//LSQ number that contains the value
-													found = true;					//Found dependency - F-F-S is needed
-													break;							//Don't look anymore
-												}
+												found_num = k;					//LSQ number that contains the value
+												found = true;					//Found dependency - F-F-S is needed
+												break;							//Don't look anymore
 											}
-											if (found)								//If dependency found,
-												break;								//Don't look anymore
 										}
+										if (found)								//If dependency found,
+											break;								//Don't look anymore
 									}
-
-									string val = "";
-									stringstream ss (stringstream::in | stringstream::out);
-									if (!found)										//If dependency not found, get value from Memory
-									{	
-										ss << Mem[add];
-										val = ss.str();
-									}
-									else											//Else if dependency found, get value from previous LSQ row
-									{
-										val = LSQ.at(found_num).val;
-										FT.at(RS_LSU[i].code_cnt).MEM1 = FT.at(RS_LSU[i].code_cnt).MEM1 - 3;  //Just keep 1 cycle for Memory access time
-									}
-
-									LSQ.at(j).val = val;
 								}
-								else 
+
+								string val = "";
+								stringstream ss (stringstream::in | stringstream::out);
+								if (!found)										//If dependency not found, get value from Memory
+								{	
+									ss << Mem[add];
+									val = ss.str();
+								}
+								else											//Else if dependency found, get value from previous LSQ row
 								{
-									FT.at(RS_LSU[i].code_cnt).MEM0 = 0;
-									FT.at(RS_LSU[i].code_cnt).MEM1 = 0;
+									val = LSQ.at(found_num).val;
+									FT.at(RS_LSU[i].code_cnt).MEM1 = FT.at(RS_LSU[i].code_cnt).MEM1 - 3;  //Just keep 1 cycle for Memory access time
 								}
+
+								LSQ.at(j).val = val;
+								mem_done = true;
 							}
-					
-							/*else if (RS_LSU[i].Op == "sd")
-							{
-								if (LSQ.at(j).val.at(0) == 'R')
-								{
-									int num = atoi(LSQ.at(j).val.substr(3, string::npos).c_str());
-									if (ROB[num].Ready)
-									{
-										stringstream ss (stringstream::in | stringstream::out);
-										ss << ROB[num].Val;
-										string val = ss.str();
-										LSQ.at(j).val = val;
-									}
-								}
-							}*/
+							break;
+						}
+
+						else if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt && RS_LSU[i].Op == "sd")				//Else if STORE function
+						{
+							FT.at(RS_LSU[i].code_cnt).MEM0 = 0;
+							FT.at(RS_LSU[i].code_cnt).MEM1 = 0;
 							break;
 						}
 					}
 
-					break;
+					//break;
 				}
 			}
+			if (mem_done)
+				break;
 		}
 
 
