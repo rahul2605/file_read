@@ -308,7 +308,7 @@ void BTBUpdate(int cur_PC, int pred_PC) {
 }
 
 int branch_PC = 0;
-bool branch = false;
+bool branch_taken = false;
 bool wait_for_branch = false;
 
 
@@ -430,7 +430,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_All.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Branch.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -498,8 +498,8 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0))
 	{
-		//print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-		//getch();
+		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+		getch();
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
@@ -605,7 +605,18 @@ int main()
 
 							else if (!ROB[j].isEmpty() && (ROB[j].code_cnt == i) && (ROB[j].Type == "branch"))			//BRANCH instruction
 							{
+								for (int k=0; k<Integer_Adder::num_FU*Integer_Adder::num_RS; k++)
+								{
+									if (!RS_IntAdder[k].isEmpty() && RS_IntAdder[k].code_cnt == i)
+									{
+										RS_IntAdder[k].clear();
+										int_adder_RS_cnt--;
+										break;
+									}
+								}
 								FT.at(i).COMMIT = clk;
+								ROB[j].clear();
+								ROB_cnt--;
 							}
 						}
 					}
@@ -716,11 +727,11 @@ int main()
 			{
 				if (FT.at(RS_IntAdder[i].code_cnt).EX0 == 0)
 				{
-					int branch_PC = -1;
-					int BTB_num = -1;
-					for (int j=0; j<8; j++)
-						if (BTB[j].code_cnt == RS_IntAdder[i].code_cnt)
-							BTB_num = j;
+					//int branch_PC = -1;
+					//int BTB_num = -1;
+					//for (int j=0; j<8; j++)
+						//if (BTB[j].code_cnt == RS_IntAdder[i].code_cnt)
+							//BTB_num = j;
 
 					FT.at(RS_IntAdder[i].code_cnt).EX0 = clk;
 					FT.at(RS_IntAdder[i].code_cnt).EX1 = clk + Integer_Adder::cycles_EX - 1;
@@ -728,17 +739,14 @@ int main()
 
 					if (RS_IntAdder[i].Op == "bne")
 					{
-						if (RS_IntAdder[i].Vj != RS_IntAdder[i].Vk)
-						{
-							//branch_PC = BTB[BTB_num].
-						}
-						else
-						{}
+						if (RS_IntAdder[i].Vj != RS_IntAdder[i].Vk)	{branch_taken = true;}
+						else	{branch_taken = false;}
 					}
 
 					else if (RS_IntAdder[i].Op == "beq")
 					{
-
+						if (RS_IntAdder[i].Vj == RS_IntAdder[i].Vk)	{branch_taken = true;}
+						else	{branch_taken = false;}
 					}
 
 					if (FU_occupied == Integer_Adder::num_FU)
@@ -946,12 +954,12 @@ int main()
 									int reg1_num, reg2_num, immediate, offset;
 									if ((string_list[0] == "beq") || (string_list[0] == "bne")) //If BRANCH instrn, get the 2 operands and offset(dest)
 									{
-										branch = true;
+										//branch = true;
 										
 										reg1 = string_list[1];
 										reg2 = string_list[2];
 										offset = atoi(string_list[3].c_str())/4;
-										int target_PC = code_cnt+1+offset;
+										branch_PC = cur_code_cnt+1+offset;
 										reg1_num = atoi(reg1.substr(1,string::npos).c_str());
 										reg2_num = atoi(reg2.substr(1,string::npos).c_str());
 
@@ -975,13 +983,13 @@ int main()
 												RS_IntAdder[i].Qk = "ROB" + std::to_string((long long)RAT_R[reg2_num]);
 										}
 
-										if (BTBContains(cur_code_cnt))
-											branch_PC = BTBGet(cur_code_cnt);
-										else
-										{
-											BTBAdd(cur_code_cnt, code_cnt, target_PC);
+										//if (BTBContains(cur_code_cnt))
+											//branch_PC = BTBGet(cur_code_cnt);
+										//else
+										//{
+											//BTBAdd(cur_code_cnt, code_cnt, target_PC);
 											wait_for_branch = true;
-										}
+										//}
 									}
 									else														//If NOT BRANCH, get the 2 operands and immediate val(only for addi)
 									{
@@ -1248,14 +1256,19 @@ int main()
 
 				if (inc_flag && !wait_for_branch)
 				{cur_code_cnt++; code_cnt++;}
-				if (branch && !wait_for_branch)
-					cur_code_cnt = branch_PC;
+				//if (branch && !wait_for_branch)
+					//cur_code_cnt = branch_PC;
 			}
 		}
 		else if (wait_for_branch)
 		{
 			if (FT.at(FT.size()-1).EX1 == clk)
+			{
 				wait_for_branch = false;
+				if (branch_taken) {cur_code_cnt = branch_PC;}
+				else {cur_code_cnt++;}
+				code_cnt++;
+			}
 		}
 
 
@@ -1629,7 +1642,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		whole_code.push_back(string_list);
 	}
 
-	int max_len[4] = {0, 0, 0, 0};
+	int max_len[4] = {0, 0, 0, 0};						//Maximum lengths of the 4 words in each line
 	vector<int> char_cnt, ls_size_cnt;
 	for (int j=0; j<whole_code.size(); j++)
 	{
@@ -1656,6 +1669,8 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			}
 		}
 	}
+
+
 
 	int maxLSlength = 0;
 	for (int i=0; i<ls_size_cnt.size(); i++)
@@ -1690,19 +1705,22 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		cout<<whole_code.at(i).at(1);
 		cout<<", ";
 		if (whole_code.at(i).size() > 3)
-			for (int j=whole_code.at(i).at(2).size(); j<max_len[2]; j++) {cout<<" ";}
-		cout<<whole_code.at(i).at(2);
-		if (whole_code.at(i).size() > 3)
 		{
+			for (int j=whole_code.at(i).at(2).size(); j<max_len[2]; j++) {cout<<" ";}
+			cout<<whole_code.at(i).at(2);
 			cout<<", ";
-			cout<<whole_code.at(i).at(3);
 			for (int j=whole_code.at(i).at(3).size(); j<max_len[3]; j++) {cout<<" ";}
+			cout<<whole_code.at(i).at(3);
+			for (int j=max_len[2]+max_len[3]+2; j<maxLSlength; j++) {cout<<" ";}
 		}
 		else if (whole_code.at(i).size() == 3)
 		{
-			int temp = max_len[0] + max_len[1] + whole_code.at(i).at(2).size() + 3;
-			for (int j=temp; j<maxCodeLength-2; j++)
+			int temp = maxLSlength;
+			if (max_len[2]+max_len[3]+2 > maxLSlength)
+				temp = max_len[2]+max_len[3]+2;
+			for (int j=whole_code.at(i).at(2).size(); j<temp; j++)
 				cout<<" ";
+			cout<<whole_code.at(i).at(2);
 		}
 		
 		cout<<" | "; FT.at(i).print();
