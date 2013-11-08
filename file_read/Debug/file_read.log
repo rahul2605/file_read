@@ -1,4 +1,4 @@
-﻿Build started 11/8/2013 2:12:15 AM.
+﻿Build started 11/8/2013 3:15:09 AM.
 Project "\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\file_read\file_read.vcxproj" on node 2 (build target(s)).
 InitializeBuildStatus:
   Creating "Debug\file_read.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -69,29 +69,29 @@ ClCompile:
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2088): warning C4018: '>' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2090): warning C4018: '>' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2095): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2309): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2311): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2316): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2402): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2406): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2412): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2414): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2419): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2423): warning C4018: '>' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2444): warning C4018: '<' : signed/unsigned mismatch
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2512): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2510) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2444) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2513): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2510) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2444) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2516): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2510) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2444) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2517): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2510) : definition of 'j' ignored
-          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2444) : definition of 'j' used
-\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2517): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2413): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2415): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2420): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2506): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2510): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2516): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2518): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2523): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2527): warning C4018: '>' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2548): warning C4018: '<' : signed/unsigned mismatch
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2616): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2614) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2548) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2617): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2614) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2548) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2620): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2614) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2548) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2621): warning C4258: 'j' : definition from the for loop is ignored; the definition from the enclosing scope is used
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2614) : definition of 'j' ignored
+          \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2548) : definition of 'j' used
+\\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(2621): warning C4018: '<' : signed/unsigned mismatch
 \\psf\home\documents\visual studio 2010\projects\file_read\file_read\main.cpp(289): warning C4715: 'BTBGet' : not all control paths return a value
 Link:
   C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\Debug\file_read.exe" /INCREMENTAL:NO /NOLOGO systemc.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\file_read.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\Debug\file_read.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"\\psf\Home\Documents\Visual Studio 2010\Projects\file_read\Debug\file_read.lib" /MACHINE:X86 Debug\main.obj
@@ -106,4 +106,4 @@ Done Building Project "\\psf\Home\Documents\Visual Studio 2010\Projects\file_rea
 
 Build succeeded.
 
-Time Elapsed 00:00:01.47
+Time Elapsed 00:00:02.19

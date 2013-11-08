@@ -430,7 +430,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Branch.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_All.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -2107,9 +2107,11 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	cout<<" Non-zero Registers and RAT files:"<<endl<<endl;
 	cout<<"              Integer Registers:\t\tFP Registers:"<<endl;
 	first = true;
-	for (int i=0; i<32; i++)
+	bool Rdone = false;
+	bool Fdone = false;
+	for (int i=0, ii=0; (i<32 || ii<32); i++, ii++)
 	{
-		if (R[i] != 0 || RAT_R[i] != -1 || F[i] != 0 || RAT_F[i] != -1)
+		if (((i<32) && (R[i] != 0 || RAT_R[i] != -1)) || ((ii<32) && (F[ii] != 0 || RAT_F[ii] != -1)))
 		{
 			if (first)
 			{
@@ -2150,14 +2152,14 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				first = false;
 			}
 
-			if ((R[i] != 0 || RAT_R[i] != -1) && (F[i] != 0 || RAT_F[i] != -1))
+			if ((i<32 || ii<32) && ((R[i] != 0 || RAT_R[i] != -1) && (F[ii] != 0 || RAT_F[ii] != -1)))
 			{
 				stringstream ssR (stringstream::in | stringstream::out);
 				ssR << R[i];
 				int curIntPartR = ssR.str().size();
 
 				stringstream ssF (stringstream::in | stringstream::out);
-				ssF << F[i];
+				ssF << F[ii];
 				int curIntPartF, curFractPartF;
 
 				if (ssF.str().find('.') != string::npos)
@@ -2189,27 +2191,27 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 					cout<<" ";
 				cout << " |" << "        ";
 
-				if (RAT_F[i] != -1)
+				if (RAT_F[ii] != -1)
 				{
-					cout << "| ROB" << RAT_F[i];
-					if (RAT_F[i] < 10)
+					cout << "| ROB" << RAT_F[ii];
+					if (RAT_F[ii] < 10)
 						cout<<" ";
 				}
 				else
 					cout << "|      ";
 				cout << " |  F[";
-				if (i<10)
+				if (ii<10)
 					cout<<"0";
-				cout<< i << "] | ";
+				cout<< ii << "] | ";
 				for (int j=0; j<maxIntPart-curIntPartF; j++)
 					cout<<" ";
-				cout << F[i];
+				cout << F[ii];
 				for (int j=0; j<maxThirdCol-maxIntPart-curFractPartF-1; j++)
 					cout<<" ";
 				cout << " |" << endl;
 			}
 
-			else if (R[i] != 0 || RAT_R[i] != -1)
+			else if (i<32 && (R[i] != 0 || RAT_R[i] != -1))
 			{
 				stringstream ssR (stringstream::in | stringstream::out);
 				ssR << R[i];
@@ -2231,19 +2233,94 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				for (int j=0; j<maxThirdCol-maxIntPart; j++)
 					cout<<" ";
 				cout << " |" << "        ";
-				cout << "|       |        | ";
-				for (int j=0; j<maxThirdCol; j++)	cout<<" ";
-				cout << " |" << endl;
+
+				while (F[ii] == 0 && ii < 32) { ii++; }
+				if (ii < 32) {
+					stringstream ssF (stringstream::in | stringstream::out);
+					ssF << F[ii];
+					int curIntPartF, curFractPartF;
+
+					if (ssF.str().find('.') != string::npos)
+					{
+						curIntPartF = ssF.str().find('.');
+						curFractPartF = ssF.str().size()-ssF.str().find('.')-1;
+					}
+					else
+					{
+						curIntPartF = ssF.str().size();
+						curFractPartF = -1;
+					}
+
+					if (RAT_F[ii] != -1)
+					{
+						cout << "| ROB" << RAT_F[ii];
+						if (RAT_F[ii] < 10)
+							cout<<" ";
+					}
+					else
+						cout << "|      ";
+					cout << " |  F[";
+					if (ii<10)
+						cout<<"0";
+					cout<< ii << "] | ";
+					for (int j=0; j<maxIntPart-curIntPartF; j++)
+						cout<<" ";
+					cout << F[ii];
+					for (int j=0; j<maxThirdCol-maxIntPart-curFractPartF-1; j++)
+						cout<<" ";
+					cout << " |" << endl;
+				}
+
+				else if (ii >= 32 && !Fdone) {
+					Fdone = true;
+					cout<<"|_______|________|";
+					for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
+					cout<<"|"<<endl;
+				}
 			}
 
-			else if (F[i] != 0 || RAT_F[i] != -1)
+			else if (ii<32 && (F[ii] != 0 || RAT_F[ii] != -1))
 			{
-				cout << "\t|       |        | ";
-				for (int j=0; j<maxThirdCol; j++)	cout<<" ";
-				cout << " |        ";
+				while (R[i] == 0 && i < 32) { i++; }
+				if (i < 32) {
+					stringstream ssR (stringstream::in | stringstream::out);
+					ssR << R[i];
+					int curIntPartR = ssR.str().size();
+
+					if (RAT_R[i] != -1)
+					{
+						cout << "\t| ROB" << RAT_R[i];
+						if (RAT_R[i] < 10) cout<<" ";
+					}
+					else
+						cout << "\t|      ";
+					cout << " |  R[";
+					if (i<10) cout<<"0";
+					cout<< i << "] | ";
+					for (int j=0; j<maxIntPart-curIntPartR; j++)
+						cout<<" ";
+					cout << R[i];
+					for (int j=0; j<maxThirdCol-maxIntPart; j++)
+						cout<<" ";
+					cout << " |        ";
+				}
+
+				else if (i >= 32 && !Rdone) {
+					Rdone = true;
+					cout<<"\t|_______|________|";
+					for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
+					cout<<"|        ";
+				}
+
+				else {
+					cout << "\t                   ";
+					for (int j=0; j<maxThirdCol; j++)	cout<<" ";
+					cout << "          ";
+				}
+
 
 				stringstream ssF (stringstream::in | stringstream::out);
-				ssF << F[i];
+				ssF << F[ii];
 				int curIntPartF, curFractPartF;
 
 				if (ssF.str().find('.') != string::npos)
@@ -2257,29 +2334,29 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 					curFractPartF = -1;
 				}
 
-				if (RAT_F[i] != -1)
+				if (RAT_F[ii] != -1)
 				{
-					cout << "| ROB" << RAT_F[i];
-					if (RAT_F[i] < 10)
+					cout << "| ROB" << RAT_F[ii];
+					if (RAT_F[ii] < 10)
 						cout<<" ";
 				}
 				else
 					cout << "|      ";
 				cout << " |  F[";
-				if (i<10)
+				if (ii<10)
 					cout<<"0";
-				cout<< i << "] | ";
+				cout<< ii << "] | ";
 				for (int j=0; j<maxIntPart-curIntPartF; j++)
 					cout<<" ";
-				cout << F[i];
+				cout << F[ii];
 				for (int j=0; j<maxThirdCol-maxIntPart-curFractPartF-1; j++)
 					cout<<" ";
 				cout << " |" << endl;
 			}
 		}
 	}
-	if (!first)
-	{
+
+	if (!Rdone && !Fdone) {
 		cout<<"\t|_______|________|";
 		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
 		cout<<"|";
@@ -2288,6 +2365,33 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
 		cout<<"|"<<endl;
 	}
+
+	else if (!Rdone) {
+		Rdone = true;
+		cout<<"\t|_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
+		cout<<"|"<<endl;
+	}
+
+	else if (!Fdone) {
+		Fdone = true;
+		cout<<"\t";
+		for (int i=0; i<maxThirdCol+21; i++) cout<<" ";
+
+		cout<<"        |_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
+		cout<<"|"<<endl;
+	}
+	/*if (!first)
+	{
+		cout<<"\t|_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
+		cout<<"|";
+
+		cout<<"        |_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
+		cout<<"|"<<endl;
+	}*/
 
 
 
