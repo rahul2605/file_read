@@ -538,7 +538,7 @@ string SelectFile(char InputFolder[]) {
 	}
 	tinydir_close(&dir);
 	
-	
+	cout<<"Input File: ";
 	int file_num = 0;
 	cin>>file_num;
 	while (file_num >= file_count || file_num <= 0)
@@ -598,6 +598,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 int main() 
 {
+	char see_all = ' ';
 	char InputFolder[] = "\\\\psf\\Home\\Desktop\\Input Files\\";
 	string file_path = SelectFile(InputFolder);
 
@@ -663,7 +664,8 @@ int main()
 	if (input != 'y' && input != 'Y')
 		exit(0);
 
-
+	cout<<endl<<"Do you want to see the output at each step? (y/n)";
+	cin >> see_all;
 
 	ReOrderBuffer* ROB = new ReOrderBuffer[ROB_entries];
 	ReservationStation* RS_IntAdder = new ReservationStation[Integer_Adder::num_RS*Integer_Adder::num_FU];
@@ -679,7 +681,8 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT0 == 0) || (misprediction_cnt >= clk))
 	{
-		//print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+		if (see_all == 'y' || see_all == 'Y')
+			print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
