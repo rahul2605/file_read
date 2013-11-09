@@ -617,10 +617,7 @@ int main()
 									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(1, string::npos).c_str());
 									if (RAT_R[num] == j)
-									{
 										RAT_R[num] = -1;
-										//R[num] = ROB[j].Val;
-									}
 
 									if (backups.size() > 0)
 									{
@@ -643,10 +640,8 @@ int main()
 									ROB[j].Ready = true;
 									int num = atoi(ROB[j].Dst.substr(1, string::npos).c_str());
 									if (RAT_F[num] == j)
-									{
 										RAT_F[num] = -1;
-										//F[num] = ROB[j].Val;
-									}
+										
 
 									if (backups.size() > 0)
 									{
@@ -684,8 +679,6 @@ int main()
 								if (LSQ.at(num).address.find('+') != string::npos)					//Calculate address if it's not calculated
 								{
 									int offset = atoi(LSQ.at(num).address.substr(0, LSQ.at(num).address.find('+')).c_str());
-									//int r_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('R')+1, string::npos).c_str());
-									//add = offset + R[r_val];
 									int rob_val = atoi(LSQ.at(num).address.substr(LSQ.at(num).address.find('B')+1, string::npos).c_str());
 									add = offset + ROB[rob_val].Val;
 								}
@@ -716,8 +709,6 @@ int main()
 									{
 										RS_LSU[k].clear();
 										ls_RS_cnt--;
-										//ROB[j].clear();
-										//ROB_cnt--;
 										break;
 									}
 								}
@@ -823,8 +814,6 @@ int main()
 							break;
 						}
 					}
-
-					//break;
 				}
 			}
 			if (mem_done)
@@ -859,67 +848,6 @@ int main()
 						FT.at(i).EX0 = clk;
 						FT.at(i).EX1 = clk + Integer_Adder::cycles_EX - 1;
 						FU_IA++;
-
-
-						/*int BTB_num = -1;										//For BRANCH instructions, get BTB entry corresponding to current FT entry
-						for (int k=0; k<8; k++)
-						{
-							if (BTB[k].code_cnt.size() > 0)
-								for (int l=0; l<BTB[k].code_cnt.size(); l++)
-									if (BTB[k].code_cnt.at(l) == i)
-										BTB_num = k;
-						}
-
-
-						if (RS_IntAdder[j].Op == "bne")							//Check if the branch should actually be taken or not
-						{
-							if (RS_IntAdder[j].Vj != RS_IntAdder[j].Vk)	
-							{
-								branch_taken = true; 
-							}
-							else
-							{
-								branch_taken = false;
-							}
-						}
-
-						else if (RS_IntAdder[j].Op == "beq")
-						{
-							if (RS_IntAdder[j].Vj == RS_IntAdder[j].Vk)
-							{
-								branch_taken = true;;
-							}
-							else
-							{
-								branch_taken = false;
-							}
-						}
-
-						if (BTB_num != -1)												//If BTB had the value,				
-						{
-							if ((BTB[BTB_num].taken && !branch_taken) || (BTB[BTB_num].taken && !branch_taken))	//If prediction has changed,
-							{
-								BackupRAT bkup;
-								for (int k=0; k<backups.size(); k++)
-									if (backups.at(k).code_cnt == i)
-										{bkup = backups.at(k); break;}
-
-								RestoreBackup(bkup, code_cnt, RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB); //Restore from backup
-
-																											//Restore PC
-								if (branch_taken)
-								{
-									cur_code_cnt = BTB[BTB_num].pred_PC;
-
-								}
-								else if (!branch_taken)
-								{
-									cur_code_cnt = BTB[BTB_num].cur_PC+1;
-								}
-							}
-						}
-						BTB[BTB_num].taken = branch_taken;*/
-
 					}
 				}
 
@@ -998,25 +926,17 @@ int main()
 						if (RS_IntAdder[j].Op == "bne")							//Check if the branch should actually be taken or not
 						{
 							if (RS_IntAdder[j].Vj != RS_IntAdder[j].Vk)	
-							{
 								branch_taken = true; 
-							}
 							else
-							{
 								branch_taken = false;
-							}
 						}
 
 						else if (RS_IntAdder[j].Op == "beq")
 						{
 							if (RS_IntAdder[j].Vj == RS_IntAdder[j].Vk)
-							{
-								branch_taken = true;;
-							}
+								branch_taken = true;
 							else
-							{
 								branch_taken = false;
-							}
 						}
 
 						if (BTB_num != -1)												//If BTB had the value,				
@@ -1032,14 +952,11 @@ int main()
 
 																											//Restore PC
 								if (branch_taken)
-								{
 									cur_code_cnt = BTB[BTB_num].pred_PC;
 
-								}
 								else if (!branch_taken)
-								{
 									cur_code_cnt = BTB[BTB_num].cur_PC+1;
-								}
+								
 								misprediction_cnt = clk+2;
 							}
 						}
@@ -1051,125 +968,7 @@ int main()
 		
 
 
-		/*int FU_occupied = 0;
-		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++)
-		{
-			if (!RS_IntAdder[i].isEmpty() && RS_IntAdder[i].Qj == "" && RS_IntAdder[i].Qk == "")
-			{
-				if (FT.at(RS_IntAdder[i].code_cnt).EX0 == 0)
-				{
-					//int branch_PC = -1;
-					int BTB_num = -1;
-					for (int j=0; j<8; j++)
-						if (BTB[j].code_cnt == RS_IntAdder[i].code_cnt)
-							BTB_num = j;
 
-					FT.at(RS_IntAdder[i].code_cnt).EX0 = clk;
-					FT.at(RS_IntAdder[i].code_cnt).EX1 = clk + Integer_Adder::cycles_EX - 1;
-					FU_occupied++;
-
-
-					if (RS_IntAdder[i].Op == "bne")
-					{
-						if (RS_IntAdder[i].Vj != RS_IntAdder[i].Vk)	{branch_taken = true; BTB[BTB_num].taken = true;}
-						else	{branch_taken = false; BTB[BTB_num].taken = false;}
-					}
-
-					else if (RS_IntAdder[i].Op == "beq")
-					{
-						if (RS_IntAdder[i].Vj == RS_IntAdder[i].Vk)	{branch_taken = true; BTB[BTB_num].taken = true;}
-						else	{branch_taken = false; BTB[BTB_num].taken = false;}
-					}
-
-					if (FU_occupied == Integer_Adder::num_FU)
-						break;
-				}
-			}
-		}
-		
-		FU_occupied = 0;
-		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
-		{
-			int temp = RS_FPAdder[i].code_cnt;
-			
-
-			if (!RS_FPAdder[i].isEmpty() && RS_FPAdder[i].Qj == "" && RS_FPAdder[i].Qk == "")
-			{
-				if (FT.at(RS_FPAdder[i].code_cnt).EX0 == 0)
-				{
-					FT.at(RS_FPAdder[i].code_cnt).EX0 = clk;
-					FT.at(RS_FPAdder[i].code_cnt).EX1 = clk + FP_Adder::cycles_EX - 1;
-					FU_occupied++;
-					if (FU_occupied == FP_Adder::num_FU)
-						break;
-				}
-			}
-		}
-
-		FU_occupied = 0;
-		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
-		{
-			if (!RS_FPMultiplier[i].isEmpty() && RS_FPMultiplier[i].Qj == "" && RS_FPMultiplier[i].Qk == "")
-			{
-				if (FT.at(RS_FPMultiplier[i].code_cnt).EX0 == 0)
-				{
-					FT.at(RS_FPMultiplier[i].code_cnt).EX0 = clk;
-					if (RS_FPMultiplier[i].Op == "mult.d")
-						FT.at(RS_FPMultiplier[i].code_cnt).EX1 = clk + FP_Multiplier::cycles_EX - 1;
-					else if (RS_FPMultiplier[i].Op == "div.d")
-						FT.at(RS_FPMultiplier[i].code_cnt).EX1 = clk + 40 - 1;
-					FU_occupied++;
-					if (FU_occupied == FP_Multiplier::num_FU)
-						break;
-				}
-			}
-		}
-
-		FU_occupied = 0;
-		bool address_ready = true;
-		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
-		{
-			if (!RS_LSU[i].isEmpty()  && RS_LSU[i].Qj == "" && RS_LSU[i].Qk == "")
-			{
-				for (int j=0; j<LSQ.size(); j++)
-				{
-					if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt)
-						if (LSQ.at(j).address.find('+') != string::npos)
-						{address_ready = false; break;}
-				}
-				if (FT.at(RS_LSU[i].code_cnt).EX0 == 0 && address_ready)
-				{
-					FT.at(RS_LSU[i].code_cnt).EX0 = clk;
-					FT.at(RS_LSU[i].code_cnt).EX1 = clk + LS_Unit::cycles_EX - 1;
-					if (RS_LSU[i].Op == "ld")
-					{
-						int add = RS_LSU[i].Vj + RS_LSU[i].Vk;
-						stringstream ss;
-						ss << add;
-						string str_add = ss.str();
-						for (int j=0; j<LSQ.size(); j++)
-						{
-							if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt)
-								LSQ.at(j).address = str_add;
-						}
-					}
-					FU_occupied++;
-					if (FU_occupied == LS_Unit::num_FU)
-						break;
-				}
-			}
-		}*/
-
-
-
-
-
-
-
-
-
-
-		
 
 
 
@@ -1595,8 +1394,7 @@ int main()
 
 				if (inc_flag && !wait_for_branch)
 				{cur_code_cnt++; code_cnt++;}
-				//if (branch && !wait_for_branch)
-					//cur_code_cnt = branch_PC;
+				
 			}
 		}
 		else if (wait_for_branch)
@@ -1942,24 +1740,16 @@ int main()
 									break;
 								}
 								else if (RS_LSU[j].Op == "sd")
-								{
 									FT.at(i).WB = 0;
-									/*ROB[RS_LSU[j].Dst_Tag].Val = RS_LSU[j].Vj - RS_LSU[j].Vk;
-									ROB[RS_LSU[j].Dst_Tag].Ready = true;*/
-								}
 								
 							}
 							else
 								FT.at(i).WB = 0;
-							//break;
 						}
 					}
-
-					//break;
 				}
 			}
 		}
-
 	}
 	
 	print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
@@ -1985,15 +1775,11 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	vector<int> char_cnt, ls_size_cnt;
 	for (int j=0; j<whole_code.size(); j++)
 	{
-		//char_cnt.push_back(0);
 		for (int i=0; i<4; i++)
 		{
 			if (whole_code.at(j).size() >= i+1)
 			{
-				//char_cnt.at(j)+=whole_code.at(j).at(i).size();
-				//if (i == 3 && whole_code.at(j).size() == 4)
-					//	char_cnt.at(j)+=2;
-
+				
 				if (i == 2 && whole_code.at(j).size() == 3)
 				{
 					ls_size_cnt.push_back(whole_code.at(j).at(i).size());
