@@ -24,33 +24,75 @@ vector<string> cur_code, code;									//Contains the lines of code
 
 
 struct TimingTable {										//Create the final IS-EX-MEM-WB-COMMIT table
-	int ISSUE, EX0, EX1, MEM0, MEM1, WB, COMMIT;
+	int ISSUE, EX0, EX1, MEM0, MEM1, WB, COMMIT0, COMMIT1;
 
-	TimingTable() { ISSUE = EX0 = EX1 = MEM0 = MEM1 = WB = COMMIT = 0; }
+	TimingTable() { ISSUE = EX0 = EX1 = MEM0 = MEM1 = WB = COMMIT0 = COMMIT1 = 0; }
 public: void print()
 		{
-			cout<<"  ";
+			cout<<" ";
+			if (ISSUE < 100) {cout<<" ";}
 			if (ISSUE < 10) {cout<<" ";}
-			cout<<ISSUE<<"  |  ";
+			cout<<ISSUE<<"  | ";
+
+			if (EX0 < 100) {cout<<" ";}
 			if (EX0 < 10) {cout<<" ";}
-			cout<<EX0<<"-";
+			if (EX0 == 0) {cout<<" ";}
+			else cout<<EX0;
+			if (EX0 > 0) cout<<" -";
+			else cout<<"  ";
+			if (EX1 < 100) {cout<<" ";}
 			if (EX1 < 10) {cout<<" ";}
-			cout<<EX1<<"  | ";
-			if (MEM0 == 0) {cout << "   - ";}
-			else 
+			if (EX1 == 0) {cout<<" ";}
+			else cout<<EX1;
+			cout<<" |";
+			
+			if (EX1+1 == WB)
 			{
-				if (MEM0 < 10) {cout<<" ";}
-				cout<<MEM0<<"-";
-				if (MEM1 < 10) {cout<<" ";}
-				cout<<MEM1;
+				cout<<"    -   ";
 			}
-			cout<<"  |  ";
+			else
+			{
+				if (MEM0 < 100) {cout<<" ";}
+				if (MEM0 < 10) {cout<<" ";}
+				if (MEM0 == 0) cout<<" ";
+				else cout<<MEM0;
+				
+				if ((MEM0 > 0 && MEM1 > 0) || (MEM0 == 0 && COMMIT0 > 0))
+					cout<<" -";
+				else
+					cout<<"  ";
+				if (MEM1 < 100) {cout<<" ";}
+				if (MEM1 < 10) {cout<<" ";}
+				if (MEM1 == 0) {cout<<" ";}
+				else cout<<MEM1;
+				
+			}
+			cout<<" | ";
+
+			if (WB < 100) {cout<<" ";}
 			if (WB < 10) {cout<<" ";}
-			if (WB == 0) cout << "-";
+			if (WB == 0) 
+			{
+				if (COMMIT0 > 0)	//Branch or Store Instruction
+					cout<<"-";
+				else
+					cout << " ";
+			}
 			else cout << WB;
-			cout<<"  |   ";
-			if (COMMIT < 10) {cout<<" ";}
-			cout<<COMMIT<<"   |"<<endl;
+			cout<<"  | ";
+
+			if (COMMIT0 < 100) {cout<<" ";}
+			if (COMMIT0 < 10) {cout<<" ";}
+			if (COMMIT0 == 0) {cout<<" ";}
+			else cout<<COMMIT0;
+			if (COMMIT0 > 0 && COMMIT1 > 0) cout<<" -";
+			else cout<<"  ";
+			if (COMMIT1 < 100) {cout<<" ";}
+			if (COMMIT1 < 10) {cout<<" ";}
+			if (COMMIT1 == 0) {cout<<" ";}
+			else cout<<COMMIT1;
+
+			cout<<" |"<<endl;
 		}
 };
 vector<TimingTable> FT;
@@ -347,6 +389,19 @@ bool BothAreSpaces(char lhs, char rhs) {
 	return ((lhs == rhs) && ((lhs == ' ') || (lhs == '\t'))) || ((lhs == ' ') && (rhs == '\t')) || ((lhs == '\t') && (rhs == ' ')); 
 }
 
+
+void ReplaceAll( string &s, const string &search, const string &replace ) {
+    for( size_t pos = 0; ; pos += replace.length() ) {
+        // Locate the substring to replace
+        pos = s.find( search, pos );
+        if( pos == string::npos ) break;
+        // Replace by erasing and inserting
+        s.erase( pos, search.length() );
+        s.insert( pos, replace );
+    }
+}
+
+
 //Function to remove multiple tabs and spaces
 string FormatLine (string line) {
 	//Replace tabs with spaces
@@ -365,6 +420,13 @@ string FormatLine (string line) {
 	std::locale loc;
 	for (std::string::size_type i=0; i<line.length(); ++i)
 		line[i] = std::tolower(line[i],loc);
+
+	//Remove spaces before and after '='
+	if (line.find("rob") == string::npos)
+	{
+		ReplaceAll(line, " =", "=");
+		ReplaceAll(line, "= ", "=");
+	}
 	return line;
 }
 
@@ -459,7 +521,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Branch.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_LS_load_wait.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -476,7 +538,11 @@ int main()
 		myfile.close();
 	} 
 	else														//If file cannot be opened, show error
+	{
 		cout << "Error opening file.";
+		getch();
+		exit(0);
+	}
 
 	//Print the initial state before starting the algorithm to confirm that data is parsed correctly
 	cout<<endl<<"                # of rs    Cycles in Ex    Cycles in Mem    # of FUs"<<endl;
@@ -525,7 +591,7 @@ int main()
 	unsigned int code_cnt=0;
 	unsigned int cur_code_cnt = 0;
 
-	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0) || (misprediction_cnt >= clk))
+	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT0 == 0) || (misprediction_cnt >= clk))
 	{
 		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		getch();
@@ -537,11 +603,11 @@ int main()
 		{
 			for (int i=0; i<FT.size(); i++)
 			{
-				if (FT.at(i).COMMIT == 0)
+				if (FT.at(i).COMMIT0 == 0)
 				{
 					if (FT.at(i).WB != 0)
 					{
-						FT.at(i).COMMIT = clk;
+						FT.at(i).COMMIT0 = clk;
 						for (int j=0; j<ROB_entries; j++)
 						{
 							if (!ROB[j].isEmpty() && ROB[j].code_cnt == i)
@@ -610,7 +676,8 @@ int main()
 							int tem = ROB[j].code_cnt;
 							if (!ROB[j].isEmpty() && (ROB[j].code_cnt == i) && (ROB[j].Type == "store")) //STORE instruction
 							{
-								FT.at(i).COMMIT = clk;
+								FT.at(i).COMMIT0 = clk;
+								FT.at(i).COMMIT1 = clk + LS_Unit::cycles_MEM - 1	;
 								ROB[j].Ready = true;
 								int num = atoi(ROB[j].Dst.substr(3, string::npos).c_str());			//Get LSQ entry number
 								int add;															//Get Mem address from LSQ
@@ -669,7 +736,7 @@ int main()
 										break;
 									}
 								}
-								FT.at(i).COMMIT = clk;
+								FT.at(i).COMMIT0 = clk;
 								ROB[j].clear();
 								ROB_cnt--;
 							}
@@ -1557,7 +1624,7 @@ int main()
 		{
 			for (int i=0; i<FT.size(); i++)
 			{
-				if (!CBD_full && FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk && FT.at(i).COMMIT == 0)
+				if (!CBD_full && FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk && FT.at(i).COMMIT0 == 0)
 				{
 					FT.at(i).WB = clk;
 					for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)
@@ -1962,13 +2029,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	cout<<" Timing Table:"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
-	cout<<" __________________________________________"<<endl;
+	cout<<" ______________________________________________"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
-	cout<<"| ISSUE |   EX    |   MEM  |  WB  | COMMIT |"<<endl;
+	cout<<"| ISSUE |    EX    |   MEM   |  WB  |  COMMIT  |"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
-	cout<<"|-------|---------|--------|------|--------|"<<endl;
+	cout<<"|-------|----------|---------|------|----------|"<<endl;
 	for (int i=0; i<FT.size(); i++)
 	{
 		cout<<whole_code.at(i).at(0);
@@ -1995,11 +2062,12 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout<<whole_code.at(i).at(2);
 		}
 		
-		cout<<" | "; FT.at(i).print();
+		cout<<" | ";
+		FT.at(i).print();
 	}
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
-	cout<<"|_______|_________|________|______|________|"<<endl;
+	cout<<"|_______|__________|_________|______|__________|"<<endl;
 
 
 
