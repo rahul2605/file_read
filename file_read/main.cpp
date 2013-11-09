@@ -268,10 +268,11 @@ int ROB_entries = 0;
 
 
 struct BranchTargetBuffer {
-	int cur_PC, pred_PC, code_cnt, r1, r2, target_PC;
+	int cur_PC, pred_PC, r1, r2;
+	vector<int> code_cnt;
 	bool taken;
 
-	BranchTargetBuffer() {cur_PC = pred_PC = code_cnt = r1 = r2 = -1;}
+	BranchTargetBuffer() {cur_PC = pred_PC = r1 = r2 = -1; taken = false;}
 };
 BranchTargetBuffer BTB[8];
 
@@ -285,31 +286,59 @@ bool BTBContains(int cur_code_cnt) {
 int BTBGet(int cur_code_cnt) {
 	for (int i=0; i<8; i++)
 		if (BTB[i].cur_PC == cur_code_cnt)
-			return BTB[i].pred_PC;
+		{
+			if (BTB[i].taken)
+				return BTB[i].pred_PC;
+			else
+				return -1;
+		}
 }
 
-void BTBAdd(int cur_code_cnt, int code_cnt, int target_PC) {
+void BTBAdd(int cur_code_cnt, int code_cnt, int pred_PC) {
 	for (int i=0; i<8; i++)
 		if (BTB[i].cur_PC == -1)
 		{
 			BTB[i].cur_PC = cur_code_cnt;
-			BTB[i].code_cnt = code_cnt;
-			BTB[i].target_PC = target_PC;
+			BTB[i].code_cnt.push_back(code_cnt);
+			BTB[i].pred_PC = pred_PC;
 			break;
 		}
 }
 
-void BTBUpdate(int cur_PC, int pred_PC) {
+void BTBUpdate(int cur_code_cnt, int code_cnt) {
 	for (int i=0; i<8; i++)
 	{
-		if (BTB[i].cur_PC == cur_PC)
-		{BTB[i].pred_PC = pred_PC;}
+		if (BTB[i].cur_PC == cur_code_cnt)
+		{BTB[i].code_cnt.push_back(code_cnt);}
 	}
 }
 
 int branch_PC = 0;
 bool branch_taken = false;
 bool wait_for_branch = false;
+
+struct BackupRAT {
+	int backupR[32], backupF[32], code_cnt;
+
+	BackupRAT() {
+		for (int i=0; i<32; i++) backupR[i] = backupF[i] = -1;
+		code_cnt = -1;
+	}
+
+	BackupRAT(int code_count) {
+		for (int i=0; i<32; i++) {backupR[i] = RAT_R[i]; backupF[i] = RAT_F[i];}
+		code_cnt = code_count;
+	}
+};
+vector<BackupRAT> backups;
+int misprediction_cnt = 0;
+
+
+void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB);
+
+
+
+
 
 
 
@@ -430,7 +459,7 @@ int main()
 {
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_All.txt");		//Open the input file
+	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_Branch.txt");		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -496,7 +525,7 @@ int main()
 	unsigned int code_cnt=0;
 	unsigned int cur_code_cnt = 0;
 
-	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0))
+	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT == 0) || (misprediction_cnt >= clk))
 	{
 		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		getch();
@@ -524,8 +553,21 @@ int main()
 									if (RAT_R[num] == j)
 									{
 										RAT_R[num] = -1;
-										R[num] = ROB[j].Val;
+										//R[num] = ROB[j].Val;
 									}
+
+									if (backups.size() > 0)
+									{
+										int counter = backups.size()-1;
+										while (counter >=0 && backups.at(counter).code_cnt > i)
+										{
+											if (backups.at(counter).backupR[num] == j)
+												backups.at(counter).backupR[num] = -1;
+											counter--;
+										}
+									}
+
+									R[num] = ROB[j].Val;
 									ROB[j].clear();
 									ROB_cnt--;
 									break;
@@ -537,8 +579,21 @@ int main()
 									if (RAT_F[num] == j)
 									{
 										RAT_F[num] = -1;
-										F[num] = ROB[j].Val;
+										//F[num] = ROB[j].Val;
 									}
+
+									if (backups.size() > 0)
+									{
+										int counter = backups.size()-1;
+										while (counter >=0 && backups.at(counter).code_cnt > i)
+										{
+											if (backups.at(counter).backupF[num] == j)
+												backups.at(counter).backupF[num] = -1;
+											counter--;
+										}
+									}
+
+									F[num] = ROB[j].Val;
 									ROB[j].clear();
 									ROB_cnt--;
 									break;
@@ -720,7 +775,216 @@ int main()
 		///////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////EXECUTE////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////////////////////////
-		int FU_occupied = 0;
+		
+		int FU_IA = 0;
+		int FU_FA = 0;
+		int FU_FM = 0;
+		int FU_LS = 0;
+
+		for (int i=0; i<FT.size(); i++)								//Check FT for row with EX0=0
+		{
+			if (FT.at(i).EX0 == 0)
+			{
+				for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)	//If it's an Integer Adder
+				{
+					if (FU_IA < Integer_Adder::num_FU && !RS_IntAdder[j].isEmpty() && RS_IntAdder[j].code_cnt == i && RS_IntAdder[j].Qj == "" && RS_IntAdder[j].Qk == "") //It it's ready to execute
+					{
+						FT.at(i).EX0 = clk;
+						FT.at(i).EX1 = clk + Integer_Adder::cycles_EX - 1;
+						FU_IA++;
+
+
+						/*int BTB_num = -1;										//For BRANCH instructions, get BTB entry corresponding to current FT entry
+						for (int k=0; k<8; k++)
+						{
+							if (BTB[k].code_cnt.size() > 0)
+								for (int l=0; l<BTB[k].code_cnt.size(); l++)
+									if (BTB[k].code_cnt.at(l) == i)
+										BTB_num = k;
+						}
+
+
+						if (RS_IntAdder[j].Op == "bne")							//Check if the branch should actually be taken or not
+						{
+							if (RS_IntAdder[j].Vj != RS_IntAdder[j].Vk)	
+							{
+								branch_taken = true; 
+							}
+							else
+							{
+								branch_taken = false;
+							}
+						}
+
+						else if (RS_IntAdder[j].Op == "beq")
+						{
+							if (RS_IntAdder[j].Vj == RS_IntAdder[j].Vk)
+							{
+								branch_taken = true;;
+							}
+							else
+							{
+								branch_taken = false;
+							}
+						}
+
+						if (BTB_num != -1)												//If BTB had the value,				
+						{
+							if ((BTB[BTB_num].taken && !branch_taken) || (BTB[BTB_num].taken && !branch_taken))	//If prediction has changed,
+							{
+								BackupRAT bkup;
+								for (int k=0; k<backups.size(); k++)
+									if (backups.at(k).code_cnt == i)
+										{bkup = backups.at(k); break;}
+
+								RestoreBackup(bkup, code_cnt, RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB); //Restore from backup
+
+																											//Restore PC
+								if (branch_taken)
+								{
+									cur_code_cnt = BTB[BTB_num].pred_PC;
+
+								}
+								else if (!branch_taken)
+								{
+									cur_code_cnt = BTB[BTB_num].cur_PC+1;
+								}
+							}
+						}
+						BTB[BTB_num].taken = branch_taken;*/
+
+					}
+				}
+
+				for (int j=0; j<FP_Adder::num_RS*FP_Adder::num_FU; j++)	//If it's a FP Adder
+				{
+					if (FU_FA < FP_Adder::num_FU && !RS_FPAdder[j].isEmpty() && RS_FPAdder[j].code_cnt == i && RS_FPAdder[j].Qj == "" && RS_FPAdder[j].Qk == "") //It it's ready to execute
+					{
+						FT.at(i).EX0 = clk;
+						FT.at(i).EX1 = clk + FP_Adder::cycles_EX - 1;
+						FU_FA++;
+					}
+				}
+
+				for (int j=0; j<FP_Multiplier::num_RS*FP_Multiplier::num_FU; j++)	//If it's a FP Multiplier
+				{
+					if (FU_FM < FP_Multiplier::num_FU && !RS_FPMultiplier[j].isEmpty() && RS_FPMultiplier[j].code_cnt == i && RS_FPMultiplier[j].Qj == "" && RS_FPMultiplier[j].Qk == "") //It it's ready to execute
+					{
+						FT.at(i).EX0 = clk;
+						if (RS_FPMultiplier[j].Op == "mult.d")
+							FT.at(i).EX1 = clk + FP_Multiplier::cycles_EX - 1;
+						else if (RS_FPMultiplier[j].Op == "div.d")
+							FT.at(i).EX1 = clk + 40 - 1;
+						FU_FM++;
+					}
+				}
+
+				bool address_ready = true;
+				for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)	//If it's a LS Unit
+				{
+					if (FU_LS < LS_Unit::num_FU && !RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i && RS_LSU[j].Qj == "" && RS_LSU[j].Qk == "") //It it's ready to execute
+					{
+						for (int k=0; k<LSQ.size(); k++)
+						{
+							if (LSQ.at(k).code_cnt == i)
+								if (LSQ.at(k).address.find('+') != string::npos)
+								{address_ready = false; break;}
+						}
+						if (address_ready)
+						{
+							FT.at(i).EX0 = clk;
+							FT.at(i).EX1 = clk + LS_Unit::cycles_EX - 1;
+							FU_LS++;
+							if (RS_LSU[j].Op == "ld")									
+							{
+								int add = RS_LSU[j].Vj + RS_LSU[j].Vk;
+								stringstream ss;
+								ss << add;
+								string str_add = ss.str();
+								for (int k=0; k<LSQ.size(); k++)
+								{
+									if (LSQ.at(k).code_cnt == RS_LSU[j].code_cnt)
+										LSQ.at(k).address = str_add;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (FT.at(i).EX1 == clk)
+			{
+				for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)	//If it's an Integer Adder
+				{
+					if (!RS_IntAdder[j].isEmpty() && RS_IntAdder[j].code_cnt == i && (RS_IntAdder[j].Op == "bne" || RS_IntAdder[j].Op == "beq")) //If it's BRANCH & ready to execute
+					{
+						int BTB_num = -1;										//For BRANCH instructions, get BTB entry corresponding to current FT entry
+						for (int k=0; k<8; k++)
+						{
+							if (BTB[k].code_cnt.size() > 0)
+								for (int l=0; l<BTB[k].code_cnt.size(); l++)
+									if (BTB[k].code_cnt.at(l) == i)
+										BTB_num = k;
+						}
+
+
+						if (RS_IntAdder[j].Op == "bne")							//Check if the branch should actually be taken or not
+						{
+							if (RS_IntAdder[j].Vj != RS_IntAdder[j].Vk)	
+							{
+								branch_taken = true; 
+							}
+							else
+							{
+								branch_taken = false;
+							}
+						}
+
+						else if (RS_IntAdder[j].Op == "beq")
+						{
+							if (RS_IntAdder[j].Vj == RS_IntAdder[j].Vk)
+							{
+								branch_taken = true;;
+							}
+							else
+							{
+								branch_taken = false;
+							}
+						}
+
+						if (BTB_num != -1)												//If BTB had the value,				
+						{
+							if ((BTB[BTB_num].taken && !branch_taken) || (BTB[BTB_num].taken && !branch_taken))	//If prediction has changed,
+							{
+								BackupRAT bkup;
+								for (int k=0; k<backups.size(); k++)
+									if (backups.at(k).code_cnt == i)
+										{bkup = backups.at(k); break;}
+
+								RestoreBackup(bkup, code_cnt, RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB); //Restore from backup
+
+																											//Restore PC
+								if (branch_taken)
+								{
+									cur_code_cnt = BTB[BTB_num].pred_PC;
+
+								}
+								else if (!branch_taken)
+								{
+									cur_code_cnt = BTB[BTB_num].cur_PC+1;
+								}
+								misprediction_cnt = clk+2;
+							}
+						}
+						BTB[BTB_num].taken = branch_taken;
+					}
+				}
+			}
+		}
+		
+
+
+		/*int FU_occupied = 0;
 		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++)
 		{
 			if (!RS_IntAdder[i].isEmpty() && RS_IntAdder[i].Qj == "" && RS_IntAdder[i].Qk == "")
@@ -728,25 +992,26 @@ int main()
 				if (FT.at(RS_IntAdder[i].code_cnt).EX0 == 0)
 				{
 					//int branch_PC = -1;
-					//int BTB_num = -1;
-					//for (int j=0; j<8; j++)
-						//if (BTB[j].code_cnt == RS_IntAdder[i].code_cnt)
-							//BTB_num = j;
+					int BTB_num = -1;
+					for (int j=0; j<8; j++)
+						if (BTB[j].code_cnt == RS_IntAdder[i].code_cnt)
+							BTB_num = j;
 
 					FT.at(RS_IntAdder[i].code_cnt).EX0 = clk;
 					FT.at(RS_IntAdder[i].code_cnt).EX1 = clk + Integer_Adder::cycles_EX - 1;
 					FU_occupied++;
 
+
 					if (RS_IntAdder[i].Op == "bne")
 					{
-						if (RS_IntAdder[i].Vj != RS_IntAdder[i].Vk)	{branch_taken = true;}
-						else	{branch_taken = false;}
+						if (RS_IntAdder[i].Vj != RS_IntAdder[i].Vk)	{branch_taken = true; BTB[BTB_num].taken = true;}
+						else	{branch_taken = false; BTB[BTB_num].taken = false;}
 					}
 
 					else if (RS_IntAdder[i].Op == "beq")
 					{
-						if (RS_IntAdder[i].Vj == RS_IntAdder[i].Vk)	{branch_taken = true;}
-						else	{branch_taken = false;}
+						if (RS_IntAdder[i].Vj == RS_IntAdder[i].Vk)	{branch_taken = true; BTB[BTB_num].taken = true;}
+						else	{branch_taken = false; BTB[BTB_num].taken = false;}
 					}
 
 					if (FU_occupied == Integer_Adder::num_FU)
@@ -826,7 +1091,7 @@ int main()
 						break;
 				}
 			}
-		}
+		}*/
 
 
 
@@ -851,7 +1116,7 @@ int main()
 		////////////////////////////////////////ISSUE////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////
 		
-		if (!wait_for_branch && cur_code_cnt < cur_code.size())
+		if (!wait_for_branch && cur_code_cnt < cur_code.size() && misprediction_cnt <=clk)
 		{
 			vector<string> string_list = BreakLine(cur_code.at(cur_code_cnt));			//This contains the line in parts
 			
@@ -954,7 +1219,6 @@ int main()
 									int reg1_num, reg2_num, immediate, offset;
 									if ((string_list[0] == "beq") || (string_list[0] == "bne")) //If BRANCH instrn, get the 2 operands and offset(dest)
 									{
-										//branch = true;
 										
 										reg1 = string_list[1];
 										reg2 = string_list[2];
@@ -983,13 +1247,21 @@ int main()
 												RS_IntAdder[i].Qk = "ROB" + std::to_string((long long)RAT_R[reg2_num]);
 										}
 
-										//if (BTBContains(cur_code_cnt))
-											//branch_PC = BTBGet(cur_code_cnt);
-										//else
-										//{
-											//BTBAdd(cur_code_cnt, code_cnt, target_PC);
-											wait_for_branch = true;
-										//}
+										if (BTBContains(cur_code_cnt))						//If BTB contains current PC,
+										{
+											BackupRAT bkup(code_cnt);
+											backups.push_back(bkup);
+											BTBUpdate(cur_code_cnt, code_cnt);				//Add current code_cnt to BTB entry
+
+											int temp_branch_PC = BTBGet(cur_code_cnt);
+											if (temp_branch_PC != -1)						//It predicted taken,
+												cur_code_cnt = temp_branch_PC-1;			//Change PC to new value-1
+										}
+										else												//If BTB doesn't contain current PC,
+										{
+											BTBAdd(cur_code_cnt, code_cnt, branch_PC);		//Add current value to BTB
+											wait_for_branch = true;							//Wait for execution to complete
+										}
 									}
 									else														//If NOT BRANCH, get the 2 operands and immediate val(only for addi)
 									{
@@ -2152,7 +2424,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				first = false;
 			}
 
-			if ((i<32 || ii<32) && ((R[i] != 0 || RAT_R[i] != -1) && (F[ii] != 0 || RAT_F[ii] != -1)))
+			if ((i<32 && ii<32) && ((R[i] != 0 || RAT_R[i] != -1) && (F[ii] != 0 || RAT_F[ii] != -1)))
 			{
 				stringstream ssR (stringstream::in | stringstream::out);
 				ssR << R[i];
@@ -2234,7 +2506,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 					cout<<" ";
 				cout << " |" << "        ";
 
-				while (F[ii] == 0 && ii < 32) { ii++; }
+				while (ii < 32 && F[ii] == 0) { ii++; }
 				if (ii < 32) {
 					stringstream ssF (stringstream::in | stringstream::out);
 					ssF << F[ii];
@@ -2277,11 +2549,14 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 					for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
 					cout<<"|"<<endl;
 				}
+
+				else
+					cout << endl;
 			}
 
 			else if (ii<32 && (F[ii] != 0 || RAT_F[ii] != -1))
 			{
-				while (R[i] == 0 && i < 32) { i++; }
+				while (i < 32 && R[i] == 0) { i++; }
 				if (i < 32) {
 					stringstream ssR (stringstream::in | stringstream::out);
 					ssR << R[i];
@@ -2382,18 +2657,6 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
 		cout<<"|"<<endl;
 	}
-	/*if (!first)
-	{
-		cout<<"\t|_______|________|";
-		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
-		cout<<"|";
-
-		cout<<"        |_______|________|";
-		for (int i=0; i<maxThirdCol+2; i++) cout<<"_";
-		cout<<"|"<<endl;
-	}*/
-
-
 
 
 
@@ -2650,13 +2913,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				cout<<"\t|------------|--------------|---------------|"<<endl;
 				first = false;
 			}
-			cout<<"\t|    ";
+			cout<<"\t|     ";
 			if (BTB[i].cur_PC < 100) cout << " ";
 			if (BTB[i].cur_PC < 10) cout << " ";
 			cout << BTB[i].cur_PC<<"    |     ";
 			if (BTB[i].cur_PC < 100) cout << " ";
 			if (BTB[i].cur_PC < 10) cout << " ";
-			cout << BTB[i].pred_PC<<"     |       ";
+			cout << BTB[i].pred_PC<<"      |       ";
 			if (BTB[i].taken == true) cout << "Y";
 			else if (BTB[i].taken == false) cout << "N";
 			cout<<"       |"<<endl;
@@ -2670,4 +2933,75 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		
 	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl<<endl<<"Press any key to continue...";
 
+}
+
+
+void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB) {
+	for (int i=0; i<32; i++)			//Restore RAT
+	{
+		RAT_R[i] = backup.backupR[i];
+		RAT_F[i] = backup.backupF[i];
+	}
+
+										//Restore RS
+
+	int_adder_RS_cnt = fp_adder_RS_cnt = fp_mul_RS_cnt = ls_RS_cnt = ROB_cnt = 0;
+
+	for (int i=0; i<Integer_Adder::num_FU*Integer_Adder::num_RS; i++)
+	{
+		if (!RS_IntAdder[i].isEmpty() && RS_IntAdder[i].code_cnt >= backup.code_cnt)
+			RS_IntAdder[i].clear();
+		if (!RS_IntAdder[i].isEmpty())
+			int_adder_RS_cnt++;
+	}
+
+	for (int i=0; i<FP_Adder::num_FU*FP_Adder::num_RS; i++)
+	{
+		if (!RS_FPAdder[i].isEmpty() && RS_FPAdder[i].code_cnt >= backup.code_cnt)
+			RS_FPAdder[i].clear();
+		if (!RS_FPAdder[i].isEmpty())
+			fp_adder_RS_cnt++;
+	}
+
+	for (int i=0; i<FP_Multiplier::num_FU*FP_Multiplier::num_RS; i++)
+	{
+		if (!RS_FPMultiplier[i].isEmpty() && RS_IntAdder[i].code_cnt >= backup.code_cnt)
+			RS_IntAdder[i].clear();
+		if (!RS_FPMultiplier[i].isEmpty())
+			fp_mul_RS_cnt++;
+	}
+
+	for (int i=0; i<LS_Unit::num_FU*LS_Unit::num_RS; i++)
+	{
+		if (!RS_LSU[i].isEmpty() && RS_LSU[i].code_cnt >= backup.code_cnt)
+			RS_LSU[i].clear();
+		if (!RS_LSU[i].isEmpty())
+			ls_RS_cnt++;
+	}
+
+										//Restore LSQ
+	for (int i=0; i<LSQ.size(); i++)
+	{
+		if (LSQ.at(i).code_cnt >= backup.code_cnt)
+			LSQ.at(i).clear();
+	}
+
+										//Restore ROB
+	for (int i=0; i<ROB_entries; i++)
+	{
+		if (!ROB[i].isEmpty() && ROB[i].code_cnt > backup.code_cnt)
+			ROB[i].clear();
+		if (!ROB[i].isEmpty())
+			ROB_cnt++;
+	}
+
+										//Restore FT
+	int temp = FT.size();
+	for (int i=backup.code_cnt+1; i<temp; i++)
+	{
+		FT.pop_back();
+		code.pop_back();
+		code_cnt--;
+	}
+	
 }
