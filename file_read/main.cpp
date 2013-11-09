@@ -6,6 +6,7 @@
 #include <locale>
 #include <algorithm>
 #include <vector>
+#include <tinydir.h>
 
 
 using namespace std;
@@ -380,10 +381,6 @@ void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation*
 
 
 
-
-
-
-
 //Function used in FormatLine(string)
 bool BothAreSpaces(char lhs, char rhs) {					
 	return ((lhs == rhs) && ((lhs == ' ') || (lhs == '\t'))) || ((lhs == ' ') && (rhs == '\t')) || ((lhs == '\t') && (rhs == ' ')); 
@@ -513,15 +510,100 @@ void ParseLine(vector<string> string_list, string line) {
 		cur_code.push_back(line);
 }
 
+string SelectFile(char InputFolder[]) {
+	cout<<"Select Input File:" << endl;
+	tinydir_dir dir;
+	tinydir_open(&dir, InputFolder);
+	int file_count = 1;
+
+	while (dir.has_next)
+	{
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+		
+		stringstream ss;
+		string s;
+		ss << file.name;
+		ss >> s;
+
+		if (s.at(0) != '.' && !file.is_dir)
+		{
+			if (file_count < 10)
+				cout<<" ";
+			printf("%d - %s",file_count++, file.name);
+			cout<<endl;
+		}
+
+		tinydir_next(&dir);
+	}
+	tinydir_close(&dir);
+	
+	
+	int file_num = 0;
+	cin>>file_num;
+	while (file_num >= file_count || file_num <= 0)
+	{
+		cout<<endl<<"Illegal entry. Please select a number between 1 and "<<file_count-1<<".";
+		cin>>file_num;
+	}
+
+
+	tinydir_open(&dir, InputFolder);
+	file_count = 1;
+
+	tinydir_file file;
+	while (dir.has_next && file_count<=file_num)
+	{
+		tinydir_readfile(&dir, &file);
+		
+		stringstream ss;
+		string s;
+		ss << file.name;
+		ss >> s;
+
+		if (s.at(0) != '.' && !file.is_dir)
+		{
+			file_count++;
+		}
+
+		tinydir_next(&dir);
+	}
+
+	stringstream ss;
+	string file_path = InputFolder;
+	//ss << InputFolder;
+	//ss >> file_path;
+	
+	string token = file_path;
+	file_path = "";
+	while (token.find("\\") != string::npos)
+	{
+		file_path += token.substr(0, token.find("\\")+1);
+		token = token.substr(token.find("\\")+1, token.size()-1);
+	}
+	//file_path += token;
+
+	ss << file.name;
+	string file_name;
+	ss >> file_name;
+
+	file_path += file_name;
+	system("cls");
+	return file_path;
+}
+
 
 void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB);
 
 
 int main() 
 {
+	char InputFolder[] = "\\\\psf\\Home\\Desktop\\Input Files\\";
+	string file_path = SelectFile(InputFolder);
+
 	R[0] = 0;
 	for (int i=0; i<32; i++) {RAT_R[i] = RAT_F[i] = -1;}
-	ifstream myfile("\\\\psf\\Home\\Desktop\\Input Files\\test_LS_load_wait.txt");		//Open the input file
+	ifstream myfile(file_path.c_str());		//Open the input file
 	
 	if (myfile.is_open())										//If file can be opened, start reading line by line
 	{
@@ -545,6 +627,7 @@ int main()
 	}
 
 	//Print the initial state before starting the algorithm to confirm that data is parsed correctly
+	cout<<endl<<"File opened: "<<file_path<<endl<<endl;
 	cout<<endl<<"                # of rs    Cycles in Ex    Cycles in Mem    # of FUs"<<endl;
 	cout<<"Integer Adder\t  "<<Integer_Adder::num_RS<<"\t\t"<<Integer_Adder::cycles_EX<<"\t\t"<<Integer_Adder::cycles_MEM<<"\t\t"<<Integer_Adder::num_FU<<endl;
 	cout<<"FP Adder\t  "<<FP_Adder::num_RS<<"\t\t"<<FP_Adder::cycles_EX<<"\t\t"<<FP_Adder::cycles_MEM<<"\t\t"<<FP_Adder::num_FU<<endl;
@@ -570,6 +653,9 @@ int main()
 		if (Mem[i] != 0)
 			cout << "Mem[" << i <<"] = " << Mem[i] << "\n";
 	}
+	cout<<endl<<endl<<"Code:"<<endl;
+	for (int i=0; i<cur_code.size(); i++)
+		cout<<cur_code.at(i)<<endl;
 	cout<<endl;
 	cout << "Continue? (y/n)";
 	char input;
@@ -593,8 +679,7 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT0 == 0) || (misprediction_cnt >= clk))
 	{
-		print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-		getch();
+		//print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////COMMIT////////////////////////////////////////
@@ -1753,10 +1838,6 @@ int main()
 	}
 	
 	print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
-
-	
-
-	getch();
 	return 0;
 }
 
@@ -1857,8 +1938,9 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	int maxIntPartVj = 0;
@@ -2100,6 +2182,11 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
 	int maxIntPart = 0;
@@ -2184,6 +2271,10 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -2515,6 +2606,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 	maxIntPart = 0;
 	maxFractPart = 0;
@@ -2611,6 +2709,11 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	
 
 
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -2753,6 +2856,12 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 	first = true;
 	for (int i=0; i<8; i++)
@@ -2786,7 +2895,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 		
 	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl<<endl<<"Press any key to continue...";
-
+	getch();
 }
 
 
