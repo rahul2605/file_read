@@ -1005,7 +1005,7 @@ int main()
 						for (int k=0; k<LSQ.size(); k++)
 						{
 							if (LSQ.at(k).code_cnt == i)
-								if (LSQ.at(k).address.find('+') != string::npos)
+								if (LSQ.at(k).address.find('R') != string::npos)
 								{address_ready = false; break;}
 						}
 						if (address_ready)
@@ -1013,7 +1013,7 @@ int main()
 							FT.at(i).EX0 = clk;
 							FT.at(i).EX1 = clk + LS_Unit::cycles_EX - 1;
 							FU_LS++;
-							if (RS_LSU[j].Op == "ld")									
+							/*if (RS_LSU[j].Op == "ld")									
 							{
 								int add = RS_LSU[j].Vj + RS_LSU[j].Vk;
 								stringstream ss;
@@ -1024,7 +1024,7 @@ int main()
 									if (LSQ.at(k).code_cnt == RS_LSU[j].code_cnt)
 										LSQ.at(k).address = str_add;
 								}
-							}
+							}*/
 						}
 					}
 				}
@@ -1086,6 +1086,43 @@ int main()
 						BTB[BTB_num].taken = branch_taken;
 					}
 				}
+
+
+				for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)	//If it's a LS Unit
+				{
+					if (!RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i && (RS_LSU[j].Op == "ld" || RS_LSU[j].Op == "sd")) //It it's ready to execute
+					{
+						if (RS_LSU[j].Op == "ld")									
+						{
+							int add = RS_LSU[j].Vj + RS_LSU[j].Vk;
+							stringstream ss;
+							ss << add;
+							string str_add = ss.str();
+							for (int k=0; k<LSQ.size(); k++)
+							{
+								if (LSQ.at(k).code_cnt == RS_LSU[j].code_cnt)
+									LSQ.at(k).address = str_add;
+							}
+						}
+
+						else if (RS_LSU[j].Op == "sd")
+						{
+							int add;
+							for (int k=0; k<LSQ.size(); k++)
+							{
+								if (LSQ.at(k).code_cnt == RS_LSU[j].code_cnt)
+								{
+
+									add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + atoi(LSQ.at(k).address.substr(LSQ.at(k).address.find('+')+1, LSQ.at(k).address.size()-1).c_str());
+									ostringstream convert; 
+									convert << add;
+									LSQ.at(k).address = convert.str();
+								}
+							}
+						}
+					}
+				}
+
 			}
 		}
 		
@@ -1632,11 +1669,15 @@ int main()
 								{
 									if (LSQ.at(k).address.find(name) != string::npos)
 									{
-										int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_IntAdder[j].Dst_Tag].Val;
-										stringstream ss1;
-										ss1 << add;
-										string str_val = ss1.str();
-										LSQ.at(k).address = str_val;
+										//int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_IntAdder[j].Dst_Tag].Val;
+										ostringstream convert; 
+										convert << ROB[RS_IntAdder[j].Dst_Tag].Val;
+										string val = LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')) + "+" + convert.str();
+										//stringstream ss1;
+										//ss1 << add;
+										//string str_val = ss1.str();
+										//LSQ.at(k).address = str_val;
+										LSQ.at(k).address = val;
 									}
 
 									if (LSQ.at(k).val == name)
@@ -1728,11 +1769,15 @@ int main()
 								{
 									if (LSQ.at(k).address.find(name) != string::npos)
 									{
-										int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_FPAdder[j].Dst_Tag].Val;
-										stringstream ss1;
-										ss1 << add;
-										string str_val = ss1.str();
-										LSQ.at(k).address = str_val;
+										//int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_FPAdder[j].Dst_Tag].Val;
+										ostringstream convert; 
+										convert << ROB[RS_FPAdder[j].Dst_Tag].Val;
+										string val = LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')) + "+" + convert.str();
+										//stringstream ss1;
+										//ss1 << add;
+										//string str_val = ss1.str();
+										//LSQ.at(k).address = str_val;
+										LSQ.at(k).address = val;
 									}
 
 									if (LSQ.at(k).val == name)
@@ -1825,11 +1870,15 @@ int main()
 								{
 									if (LSQ.at(k).address.find(name) != string::npos)
 									{
-										int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_FPMultiplier[j].Dst_Tag].Val;
-										stringstream ss1;
-										ss1 << add;
-										string str_val = ss1.str();
-										LSQ.at(k).address = str_val;
+										//int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_FPMultiplier[j].Dst_Tag].Val;
+										ostringstream convert; 
+										convert << ROB[RS_FPMultiplier[j].Dst_Tag].Val;
+										string val = LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')) + "+" + convert.str();
+										//stringstream ss1;
+										//ss1 << add;
+										//string str_val = ss1.str();
+										//LSQ.at(k).address = str_val;
+										LSQ.at(k).address = val;
 									}
 
 									if (LSQ.at(k).val == name)
@@ -1935,11 +1984,15 @@ int main()
 										{
 											if (LSQ.at(k).address.find(name) != string::npos)
 											{
-												int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_LSU[j].Dst_Tag].Val;
-												stringstream ss1;
-												ss1 << add;
-												string str_val = ss1.str();
-												LSQ.at(k).address = str_val;
+												//int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_LSU[j].Dst_Tag].Val;
+												ostringstream convert; 
+												convert << ROB[RS_LSU[j].Dst_Tag].Val;
+												string val = LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')) + "+" + convert.str();
+												//stringstream ss1;
+												//ss1 << add;
+												//string str_val = ss1.str();
+												//LSQ.at(k).address = str_val;
+												LSQ.at(k).address = val;
 											}
 
 											if (LSQ.at(k).val == name)
