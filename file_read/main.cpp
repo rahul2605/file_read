@@ -28,7 +28,7 @@ struct TimingTable {										//Create the final IS-EX-MEM-WB-COMMIT table
 	int ISSUE, EX0, EX1, MEM0, MEM1, WB, COMMIT0, COMMIT1;
 
 	TimingTable() { ISSUE = EX0 = EX1 = MEM0 = MEM1 = WB = COMMIT0 = COMMIT1 = 0; }
-public: void print()
+public: void print(int cnt)
 		{
 			cout<<" ";
 			if (ISSUE < 100) {cout<<" ";}
@@ -93,7 +93,7 @@ public: void print()
 			if (COMMIT1 == 0) {cout<<" ";}
 			else cout<<COMMIT1;
 
-			cout<<" |"<<endl;
+			cout<<" | "<<cnt<<endl;
 		}
 };
 vector<TimingTable> FT;
@@ -146,10 +146,33 @@ struct LS_Queue {
 	LS_Queue () {address = ""; val = ""; op = ""; code_cnt = -1;}
 
 public: void clear() { address = ""; val = ""; op = ""; code_cnt = -1; }
+
+public: bool isEmpty() {
+			if (code_cnt == -1)
+				return true;
+			else
+				return false;
+		}
 };
 vector<LS_Queue> LSQ;
 int lsq_cnt = 0;
 
+int AddLSQRow(LS_Queue qRow, int RS_num) {
+	if (LSQ.size() > 0 && RS_num <= (LSQ.size()-1))
+	{
+		LSQ.at(RS_num).address = qRow.address;
+		LSQ.at(RS_num).code_cnt = qRow.code_cnt;
+		LSQ.at(RS_num).op = qRow.op;
+		LSQ.at(RS_num).val = qRow.val;
+		return RS_num;
+	}
+	else
+	{
+		LSQ.push_back(qRow);
+		int temp = LSQ.size()-1;
+		return temp;
+	}
+}
 
 
 
@@ -167,7 +190,7 @@ public: bool isEmpty()
 		else return false;
 	}
 
-public: void print(int maxVjCol, int maxIntPartVj) 
+public: void print(int maxVjCol, int maxIntPartVj, int cnt) 
 	{
 		if (!(this->isEmpty()))
 		{
@@ -255,7 +278,7 @@ public: void print(int maxVjCol, int maxIntPartVj)
 			else
 				for (int j=0; j<maxVjCol; j++) cout << " ";
 
-			cout<<" |"<<endl;
+			cout<<" | "<<cnt<<endl;
 		}
 		else
 		{
@@ -263,7 +286,10 @@ public: void print(int maxVjCol, int maxIntPartVj)
 			for (int i=0; i<maxVjCol; i++) cout<<"-";
 			cout<<" | ";
 			for (int i=0; i<maxVjCol; i++) cout<<"-";
-			cout<<" |" << endl;
+			cout<<" | ";
+			if (cnt != -1)
+				cout<<cnt;
+			cout << endl;
 		}
 	}
 
@@ -287,7 +313,7 @@ public: bool isEmpty()
 		else return false;
 	}
 
-public: void print(int i, int maxThirdCol, int maxIntPart, int curIntPart, int curFractPart)
+public: void print(int i, int maxThirdCol, int maxIntPart, int curIntPart, int curFractPart, int cnt)
 	{
 		if (!(this->isEmpty())) { 
 			cout << "ROB" << i;
@@ -299,7 +325,7 @@ public: void print(int i, int maxThirdCol, int maxIntPart, int curIntPart, int c
 			cout << Val;
 			for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1; j++)
 				cout<<" ";
-			cout << " |   " << Ready << "   |" << endl; 
+			cout << " |   " << Ready << "   | " <<cnt << endl; 
 		}
 	}
 
@@ -543,7 +569,7 @@ string SelectFile(char InputFolder[]) {
 	cin>>file_num;
 	while (file_num >= file_count || file_num <= 0)
 	{
-		cout<<endl<<"Illegal entry. Please select a number between 1 and "<<file_count-1<<".";
+		cout<<endl<<"Illegal entry. Please select a number between 1 and "<<file_count-1<<": ";
 		cin>>file_num;
 	}
 
@@ -790,11 +816,13 @@ int main()
 								Mem[add] = val;														//Update Mem with val
 								ROB[j].Val = val;
 
-								LSQ.at(num).clear();												//Clear LSQ
+								//LSQ.at(num).clear();
+								//LSQ.erase(LSQ.begin()+num);												//Clear LSQ
 								for (int k=0; k<LS_Unit::num_RS*LS_Unit::num_FU; k++)				//Clear RS
 								{
 									if (RS_LSU[k].code_cnt == ROB[j].code_cnt)
 									{
+										LSQ.at(num).clear();
 										RS_LSU[k].clear();
 										ls_RS_cnt--;
 										break;
@@ -848,8 +876,15 @@ int main()
 							int add = atoi(LSQ.at(j).address.c_str());
 
 							bool can_load = true;														//Flag to see if the addresses of all Stores above it are known
-							for (int l=0; l<j; l++)
-								if (LSQ.at(l).op == "S" && LSQ.at(l).address.find('+') != string::npos)	{can_load = false; break;}
+							
+							for (int k=0; k<LSQ.size(); k++)
+							{
+								if (LSQ.at(k).code_cnt < LSQ.at(j).code_cnt && LSQ.at(k).op == "S" && (LSQ.at(k).address.find('+') != string::npos || LSQ.at(k).val.find('R') != string::npos))
+								{can_load = false; break;}
+							}
+							
+							//for (int l=0; l<j; l++)
+								//if (LSQ.at(l).op == "S" && LSQ.at(l).address.find('+') != string::npos)	{can_load = false; break;}
 
 							if (can_load)
 							{
@@ -857,10 +892,10 @@ int main()
 								FT.at(RS_LSU[i].code_cnt).MEM1 = clk + LS_Unit::cycles_MEM - 1;
 
 								bool found = false;								//Flag to see if forwarding-from-store is needed
-								int found_num = 0;								//LSQ number from where to gt data if F-F-S is required
-								for (int k=j-1; k>=0; k--)						//Check LSQ starting from the most recent entry
+								int found_num = 0;								//LSQ number from where to get data if F-F-S is required
+								for (int k=0; k<LSQ.size(); k++)						//Check LSQ starting from the most recent entry
 								{
-									if (LSQ.at(k).address == LSQ.at(j).address) //If address of another entry matches, check if it is a STORE
+									if (LSQ.at(k).address == LSQ.at(j).address && LSQ.at(k).code_cnt<LSQ.at(j).code_cnt) //If address of another entry matches, check if it is a STORE
 									{
 										for (int l=0; l<LS_Unit::num_RS*LS_Unit::num_FU; l++)   //Get the RS associated with the matching LSQ entry
 										{
@@ -1268,7 +1303,7 @@ int main()
 										{
 											RS_IntAdder[i].Dst_Tag = j;							//Update DEST_TAG for RS
 											ROB[j].Ready = false;								//Update READY flag for ROB
-											if ((string_list[0] == "beq") || (string_list[0] == "bne"))  //!!!!!!!!!!!***************INCOMPLETE
+											if ((string_list[0] == "beq") || (string_list[0] == "bne"))  
 											{
 												ROB[j].Dst = "";
 												ROB[j].Type = "branch";
@@ -1441,7 +1476,8 @@ int main()
 												qRow.address = offset_in_string + "+ROB" + std::to_string((long long)RAT_R[reg2_num]);
 										}
 										qRow.code_cnt = code_cnt;					//Updater code_cnt of QROW
-										LSQ.push_back(qRow);						//Add the row to LSQ
+										//LSQ.push_back(qRow);						//Add the row to LSQ
+										int lsq_num = AddLSQRow(qRow, i);
 
 										for (int j=0; j<ROB_entries; j++)
 										{
@@ -1450,7 +1486,7 @@ int main()
 												RS_LSU[i].Dst_Tag = j;			//Update DEST_TAG for RS
 												if (string_list[0] == "sd")
 												{
-													ROB[j].Dst = "lsq" + to_string((long long)LSQ.size()-1); //Update DEST for ROB
+													ROB[j].Dst = "lsq" + to_string((long long)lsq_num); //Update DEST for ROB
 													ROB[j].Type = "store";		//Update TYPE for ROB
 													ROB[j].Ready = false;		//Update READY flag for ROB
 													ROB[j].code_cnt = code_cnt;
@@ -1512,7 +1548,7 @@ int main()
 			{
 				if (!CBD_full && FT.at(i).WB == 0 && FT.at(i).EX1 != 0 && FT.at(i).EX1 < clk && FT.at(i).COMMIT0 == 0)
 				{
-					FT.at(i).WB = clk;
+					//FT.at(i).WB = clk;
 					for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)
 					{
 						string op = RS_IntAdder[j].Op;
@@ -1520,19 +1556,23 @@ int main()
 						{
 							if (RS_IntAdder[j].Op == "add" || RS_IntAdder[j].Op == "addi")
 							{
+								FT.at(i).WB = clk;
 								ROB[RS_IntAdder[j].Dst_Tag].Val = RS_IntAdder[j].Vj + RS_IntAdder[j].Vk;
 								ROB[RS_IntAdder[j].Dst_Tag].Ready = true;
 							}
 							else if (RS_IntAdder[j].Op == "sub")
 							{
+								FT.at(i).WB = clk;
 								ROB[RS_IntAdder[j].Dst_Tag].Val = RS_IntAdder[j].Vj - RS_IntAdder[j].Vk;
 								ROB[RS_IntAdder[j].Dst_Tag].Ready = true;
 							}
 							else if (RS_IntAdder[j].Op == "beq")
 							{
+								FT.at(i).WB = 0;
 							}
 							else if (RS_IntAdder[j].Op == "bne")
 							{
+								FT.at(i).WB = 0;
 							}
 
 							
@@ -1598,6 +1638,15 @@ int main()
 										string str_val = ss1.str();
 										LSQ.at(k).address = str_val;
 									}
+
+									if (LSQ.at(k).val == name)
+									{
+										int add = ROB[RS_IntAdder[j].Dst_Tag].Val;
+										stringstream ss1;
+										ss1 << add;
+										string str_val = ss1.str();
+										LSQ.at(k).val = str_val;
+									}
 								}
 							}
 
@@ -1623,6 +1672,7 @@ int main()
 								ROB[RS_FPAdder[j].Dst_Tag].Ready = true;
 							}
 							
+							FT.at(i).WB = clk;
 							stringstream ss;
 							ss << RS_FPAdder[j].Dst_Tag;
 							string str = ss.str();
@@ -1672,6 +1722,30 @@ int main()
 								}
 							}
 
+							for (int k=0; k<LSQ.size(); k++)
+							{
+								if (LSQ.at(k).code_cnt != -1)
+								{
+									if (LSQ.at(k).address.find(name) != string::npos)
+									{
+										int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_FPAdder[j].Dst_Tag].Val;
+										stringstream ss1;
+										ss1 << add;
+										string str_val = ss1.str();
+										LSQ.at(k).address = str_val;
+									}
+
+									if (LSQ.at(k).val == name)
+									{
+										int add = ROB[RS_FPAdder[j].Dst_Tag].Val;
+										stringstream ss1;
+										ss1 << add;
+										string str_val = ss1.str();
+										LSQ.at(k).val = str_val;
+									}
+								}
+							}
+
 							RS_FPAdder[j].clear();
 							fp_adder_RS_cnt--;
 							CBD_full = true;
@@ -1695,6 +1769,7 @@ int main()
 							}
 
 							
+							FT.at(i).WB = clk;
 							stringstream ss;
 							ss << RS_FPMultiplier[j].Dst_Tag;
 							string str = ss.str();
@@ -1743,6 +1818,31 @@ int main()
 									RS_LSU[k].Qk = ""; RS_LSU[k].Vk = ROB[RS_FPMultiplier[j].Dst_Tag].Val;
 								}
 							}
+
+							for (int k=0; k<LSQ.size(); k++)
+							{
+								if (LSQ.at(k).code_cnt != -1)
+								{
+									if (LSQ.at(k).address.find(name) != string::npos)
+									{
+										int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_FPMultiplier[j].Dst_Tag].Val;
+										stringstream ss1;
+										ss1 << add;
+										string str_val = ss1.str();
+										LSQ.at(k).address = str_val;
+									}
+
+									if (LSQ.at(k).val == name)
+									{
+										int add = ROB[RS_FPMultiplier[j].Dst_Tag].Val;
+										stringstream ss1;
+										ss1 << add;
+										string str_val = ss1.str();
+										LSQ.at(k).val = str_val;
+									}
+								}
+							}
+
 							RS_FPMultiplier[j].clear();
 							fp_mul_RS_cnt--;
 							CBD_full = true;
@@ -1752,7 +1852,6 @@ int main()
 
 					for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)
 					{
-						
 						if (!RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i)
 						{
 							if (FT.at(i).MEM1 != 0 && FT.at(i).MEM1 < clk)
@@ -1770,9 +1869,16 @@ int main()
 								}
 								if (RS_LSU[j].Op == "ld")
 								{
+									FT.at(i).WB = clk;
 									ROB[RS_LSU[j].Dst_Tag].Val = val;
 									ROB[RS_LSU[j].Dst_Tag].Ready = true;
+									//LSQ.erase(LSQ.begin() + num);
 									LSQ.at(num).clear();
+									/*for (int k=0; k<ROB_entries; k++)
+									{
+										if (ROB[k].code_cnt == i)
+											ROB[k].Dst = "";
+									}*/
 
 									stringstream ss;
 									ss << RS_LSU[j].Dst_Tag;
@@ -1822,6 +1928,31 @@ int main()
 											RS_LSU[k].Qk = ""; RS_LSU[k].Vk = ROB[RS_LSU[j].Dst_Tag].Val;
 										}
 									}
+
+									for (int k=0; k<LSQ.size(); k++)
+									{
+										if (LSQ.at(k).code_cnt != -1)
+										{
+											if (LSQ.at(k).address.find(name) != string::npos)
+											{
+												int add = atoi(LSQ.at(k).address.substr(0, LSQ.at(k).address.find('+')).c_str()) + ROB[RS_LSU[j].Dst_Tag].Val;
+												stringstream ss1;
+												ss1 << add;
+												string str_val = ss1.str();
+												LSQ.at(k).address = str_val;
+											}
+
+											if (LSQ.at(k).val == name)
+											{
+												int add = ROB[RS_LSU[j].Dst_Tag].Val;
+												stringstream ss1;
+												ss1 << add;
+												string str_val = ss1.str();
+												LSQ.at(k).val = str_val;
+											}
+										}
+									}
+
 									RS_LSU[j].clear();
 									ls_RS_cnt--;
 									CBD_full = true;
@@ -1933,7 +2064,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		}
 		
 		cout<<" | ";
-		FT.at(i).print();
+		FT.at(i).print(i);
 	}
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
@@ -2117,7 +2248,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	if (totalRScnt != 0)
 	{
 		int j = 1;
-		cout << endl << endl << " Reservation Stations:" << endl ;
+		cout << endl << endl << " Reservation Stations:" << endl;
 		cout<<"         _______________________________________";
 		for (int i=0; i<2*maxVjCol+5; i++) cout<<"_";
 		cout<<endl;
@@ -2148,7 +2279,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout << "RS_IA" << j++; 
 			if (j-1 < 10)
 				cout<<" ";
-			cout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj);
+			cout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj, RS_IntAdder[i].code_cnt);
 		}
 
 		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
@@ -2156,7 +2287,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout << "RS_FA" << j++;
 			if (j-1 < 10)
 				cout<<" ";
-			cout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj);
+			cout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj, RS_FPAdder[i].code_cnt);
 		}
 
 		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
@@ -2164,7 +2295,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout << "RS_FM" << j++;
 			if (j-1 < 10)
 				cout<<" ";
-			cout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj);
+			cout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj, RS_FPMultiplier[i].code_cnt);
 		}
 
 		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
@@ -2172,7 +2303,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			cout << "RS_LS" << j++;
 			if (j-1 < 10)
 				cout<<" ";
-			cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj);
+			cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt);
 		}
 
 		cout<<"        |________|_________|_________|_________|_";
@@ -2260,7 +2391,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				cout<<"|-------|"<<endl;
 				first = false;
 			}
-			ROB[i].print(i, maxThirdCol, maxIntPart, curIntPart, curFractPart);
+			ROB[i].print(i, maxThirdCol, maxIntPart, curIntPart, curFractPart, ROB[i].code_cnt);
 		}
 	}
 	if (!first)
@@ -2843,7 +2974,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			else if (LSQ.at(j).val.find('R') != string::npos)
 				for (int k=0; k<maxThirdCol-LSQ.at(j).val.size()-diff; k++)
 					cout<<" ";
-			cout << " |" << endl;
+			cout << " | " << LSQ.at(j).code_cnt << endl;
 		}
 	}
 	if (!first)
@@ -2931,8 +3062,8 @@ void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation*
 
 	for (int i=0; i<FP_Multiplier::num_FU*FP_Multiplier::num_RS; i++)
 	{
-		if (!RS_FPMultiplier[i].isEmpty() && RS_IntAdder[i].code_cnt >= backup.code_cnt)
-			RS_IntAdder[i].clear();
+		if (!RS_FPMultiplier[i].isEmpty() && RS_FPMultiplier[i].code_cnt >= backup.code_cnt)
+			RS_FPMultiplier[i].clear();
 		if (!RS_FPMultiplier[i].isEmpty())
 			fp_mul_RS_cnt++;
 	}
