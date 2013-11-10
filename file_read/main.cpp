@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <conio.h>
-#include <locale>
+//#include <locale>
 #include <algorithm>
 #include <vector>
 #include <tinydir.h>
@@ -440,9 +440,10 @@ string FormatLine (string line) {
 	line.erase(new_end, line.end()); 
 
 	//Convert to lowercase
-	std::locale loc;
-	for (std::string::size_type i=0; i<line.length(); ++i)
-		line[i] = std::tolower(line[i],loc);
+	//std::locale loc;
+	//for (std::string::size_type i=0; i<line.length(); ++i)
+		//line[i] = std::tolower(line[i],loc);
+	std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 
 	//Remove spaces before and after '='
 	if (line.find("rob") == string::npos)
@@ -537,7 +538,7 @@ void ParseLine(vector<string> string_list, string line) {
 }
 
 string SelectFile(char InputFolder[]) {
-	cout<<"Select Input File:" << endl;
+	cout<<"Select Input File:" << endl << endl;
 	tinydir_dir dir;
 	tinydir_open(&dir, InputFolder);
 	int file_count = 1;
@@ -559,19 +560,29 @@ string SelectFile(char InputFolder[]) {
 			printf("%d - %s",file_count++, file.name);
 			cout<<endl;
 		}
-
 		tinydir_next(&dir);
 	}
 	tinydir_close(&dir);
 	
-	cout<<"Input File: ";
 	int file_num = 0;
-	cin>>file_num;
-	while (file_num >= file_count || file_num <= 0)
+	bool temp_file = true;
+	while(true)
 	{
-		cout<<endl<<"Illegal entry. Please select a number between 1 and "<<file_count-1<<": ";
-		cin>>file_num;
+		if (temp_file)
+		{
+			cout << endl << "Please Enter Input File Number: ";
+			temp_file = false;
+		}
+	    if ((cin >> file_num) && (file_num > 0) && (file_num < file_count)) //true if a leading integer has entered the stream
+		break ;
+	    else
+	    {
+		  cout << "Invalid Input. Please select a number between 1 and "<<file_count-1<<": ";
+		  cin.clear() ;
+		  cin.ignore((std::numeric_limits<streamsize>::max)(), '\n') ;
+	    }
 	}
+			
 
 
 	tinydir_open(&dir, InputFolder);
@@ -777,7 +788,7 @@ int main()
 						}
 					}
 
-					else if (FT.at(i).WB == 0 && FT.at(i).EX1 < clk)
+					else if (FT.at(i).WB == 0 && FT.at(i).EX1 < clk && FT.at(i).EX1 > 0)
 					{
 						for (int j=0; j<ROB_entries; j++)
 						{
