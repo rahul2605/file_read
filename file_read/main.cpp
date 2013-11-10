@@ -629,7 +629,8 @@ string SelectFile(char InputFolder[]) {
 	return file_path;
 }
 
-
+char last_op = ' ';
+bool last_print = false;
 void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB);
 
 
@@ -660,7 +661,7 @@ int main()
 	else														//If file cannot be opened, show error
 	{
 		cout << "Error opening file.";
-		getch();
+		_getch();
 		exit(0);
 	}
 
@@ -701,8 +702,6 @@ int main()
 	if (input != 'y' && input != 'Y')
 		exit(0);
 
-	cout<<endl<<"Do you want to see the output at each step? (y/n)";
-	cin >> see_all;
 
 	ReOrderBuffer* ROB = new ReOrderBuffer[ROB_entries];
 	ReservationStation* RS_IntAdder = new ReservationStation[Integer_Adder::num_RS*Integer_Adder::num_FU];
@@ -718,7 +717,7 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT0 == 0) || (misprediction_cnt >= clk))
 	{
-		if (see_all == 'y' || see_all == 'Y')
+		if (last_op != 'E')
 			print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		clk++;
 		//////////////////////////////////////////////////////////////////////////////////////
@@ -2035,6 +2034,7 @@ int main()
 		}
 	}
 	
+	last_print = true;
 	print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 	return 0;
 }
@@ -2335,39 +2335,121 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		cout<<"        |--------|---------|---------|---------|";
 		for (int i=0; i<maxVjCol+2; i++) cout<<"-";
 		cout<<"|";
-		for (int i=0; i<maxVjCol+1; i++) cout<<"-";
-		cout<<"-|"<<endl;
+		for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+		cout<<"|"<<endl;
 
+		int num_RS = 0;
+		int num2_RS = 0;
+		
 		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++) 
 		{
-			cout << "RS_IA" << j++; 
-			if (j-1 < 10)
-				cout<<" ";
-			cout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj, RS_IntAdder[i].code_cnt);
+			if (!RS_IntAdder[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				cout << "RS_IA" << j; 
+				if (j < 10)
+					cout<<" ";
+				cout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj, RS_IntAdder[i].code_cnt);
+			}
+			j++;
 		}
 
 		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
 		{
-			cout << "RS_FA" << j++;
-			if (j-1 < 10)
-				cout<<" ";
-			cout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj, RS_FPAdder[i].code_cnt);
+			if (!RS_FPAdder[i].isEmpty() && num2_RS > 0)
+			{
+				num2_RS = 0;
+				cout<<"--------|--------|---------|---------|---------|";
+				for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+				cout<<"|";
+				for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+				cout<<"|----"<<endl;
+				break;
+			}
 		}
+
+
+
+		j=1; num_RS = 0;
+		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
+		{
+			if (!RS_FPAdder[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				cout << "RS_FA" << j;
+				if (j < 10)
+					cout<<" ";
+				cout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj, RS_FPAdder[i].code_cnt);
+			}
+			j++;
+		}
+		
+
 
 		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
 		{
-			cout << "RS_FM" << j++;
-			if (j-1 < 10)
-				cout<<" ";
-			cout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj, RS_FPMultiplier[i].code_cnt);
+			if (!RS_FPMultiplier[i].isEmpty() && num2_RS > 0)
+			{
+				num2_RS = 0;
+				cout<<"--------|--------|---------|---------|---------|";
+				for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+				cout<<"|";
+				for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+				cout<<"|----"<<endl;
+				break;
+			}
 		}
+
+
+
+		j=1; num_RS = 0;
+		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
+		{
+			if (!RS_FPMultiplier[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				cout << "RS_FM" << j;
+				if (j < 10)
+					cout<<" ";
+				cout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj, RS_FPMultiplier[i].code_cnt);
+			}
+			j++;
+		}
+
+
 
 		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
-			cout << "RS_LS" << j++;
-			if (j-1 < 10)
-				cout<<" ";
-			cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt);
+			if (!RS_LSU[i].isEmpty() && num2_RS > 0)
+			{
+				num2_RS = 0;
+				cout<<"--------|--------|---------|---------|---------|";
+				for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+				cout<<"|";
+				for (int i=0; i<maxVjCol+2; i++) cout<<"-";
+				cout<<"|----"<<endl;
+				break;
+			}
+		}
+
+
+
+		j=1; num_RS = 0;
+		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		{
+			if (!RS_LSU[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				cout << "RS_LS" << j;
+				if (j < 10)
+					cout<<" ";
+				cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt);
+			}
+			j++;
 		}
 
 		cout<<"        |________|_________|_________|_________|_";
@@ -3092,8 +3174,13 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 		
-	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl<<endl<<"Press any key to continue...";
-	getch();
+	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl<<endl;
+	if (!last_print)
+		cout<<"Press any key to continue (e to jump to output)...";
+	else
+		cout<<"Press any key to continue...";
+	last_op = _getch();
+	last_op = toupper(last_op);
 }
 
 
