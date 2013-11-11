@@ -1411,9 +1411,16 @@ int main()
 			{
 				if (FT.at(RS_LSU[i].code_cnt).MEM0 == 0 && FT.at(RS_LSU[i].code_cnt).EX1 != 0 && FT.at(RS_LSU[i].code_cnt).EX1 < clk)	//If the corresponding function has executed
 				{
+					bool can_mem = true;
+					for (int j=0; j<LSQ.size(); j++)
+					{
+						if (!LSQ.at(j).isEmpty() && FT.at(LSQ.at(j).code_cnt).MEM0 > 0 && FT.at(LSQ.at(j).code_cnt).MEM1 >= clk)
+							can_mem = false;
+					}
+
 					for (int j=0; j<LSQ.size(); j++)																					//Get the corresponding LSQ
 					{
-						if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt && RS_LSU[i].Op == "ld")											//If LOAD function
+						if (can_mem && LSQ.at(j).code_cnt == RS_LSU[i].code_cnt && RS_LSU[i].Op == "ld")											//If LOAD function
 						{
 							int add = atoi(LSQ.at(j).address.c_str());
 
@@ -1472,7 +1479,7 @@ int main()
 							break;
 						}
 
-						else if (LSQ.at(j).code_cnt == RS_LSU[i].code_cnt && RS_LSU[i].Op == "sd")				//Else if STORE function
+						else if (can_mem && LSQ.at(j).code_cnt == RS_LSU[i].code_cnt && RS_LSU[i].Op == "sd")				//Else if STORE function
 						{
 							FT.at(RS_LSU[i].code_cnt).MEM0 = 0;
 							FT.at(RS_LSU[i].code_cnt).MEM1 = 0;
@@ -1506,9 +1513,23 @@ int main()
 		{
 			if (FT.at(i).EX0 == 0)
 			{
+				bool int_adder_ex = false;
+				for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)	//Check if anything is executing in Integer Adder
+				{
+					if (FU_IA < Integer_Adder::num_FU && !RS_IntAdder[j].isEmpty() && FT.at(RS_IntAdder[j].code_cnt).EX0 > 0 && FT.at(RS_IntAdder[j].code_cnt).EX1 >= clk)
+						int_adder_ex = true;
+				}
+
+				bool ls_ex = false;
+				for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)	//Check if anything is executing in LS Unit
+				{
+					if (FU_LS < LS_Unit::num_FU && !RS_LSU[j].isEmpty() && FT.at(RS_LSU[j].code_cnt).EX0 > 0 && FT.at(RS_LSU[j].code_cnt).EX1 >= clk)
+						ls_ex = true;
+				}
+
 				for (int j=0; j<Integer_Adder::num_RS*Integer_Adder::num_FU; j++)	//If it's an Integer Adder
 				{
-					if (FU_IA < Integer_Adder::num_FU && !RS_IntAdder[j].isEmpty() && RS_IntAdder[j].code_cnt == i && RS_IntAdder[j].Qj == "" && RS_IntAdder[j].Qk == "") //It it's ready to execute
+					if (!int_adder_ex && FU_IA < Integer_Adder::num_FU && !RS_IntAdder[j].isEmpty() && RS_IntAdder[j].code_cnt == i && RS_IntAdder[j].Qj == "" && RS_IntAdder[j].Qk == "") //It it's ready to execute
 					{
 						FT.at(i).EX0 = clk;
 						FT.at(i).EX1 = clk + Integer_Adder::cycles_EX - 1;
@@ -1542,7 +1563,7 @@ int main()
 				bool address_ready = true;
 				for (int j=0; j<LS_Unit::num_RS*LS_Unit::num_FU; j++)	//If it's a LS Unit
 				{
-					if (FU_LS < LS_Unit::num_FU && !RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i && RS_LSU[j].Qj == "" && RS_LSU[j].Qk == "") //It it's ready to execute
+					if (!ls_ex && FU_LS < LS_Unit::num_FU && !RS_LSU[j].isEmpty() && RS_LSU[j].code_cnt == i && RS_LSU[j].Qj == "" && RS_LSU[j].Qk == "") //It it's ready to execute
 					{
 						for (int k=0; k<LSQ.size(); k++)
 						{
@@ -1555,18 +1576,6 @@ int main()
 							FT.at(i).EX0 = clk;
 							FT.at(i).EX1 = clk + LS_Unit::cycles_EX - 1;
 							FU_LS++;
-							/*if (RS_LSU[j].Op == "ld")									
-							{
-								int add = RS_LSU[j].Vj + RS_LSU[j].Vk;
-								stringstream ss;
-								ss << add;
-								string str_add = ss.str();
-								for (int k=0; k<LSQ.size(); k++)
-								{
-									if (LSQ.at(k).code_cnt == RS_LSU[j].code_cnt)
-										LSQ.at(k).address = str_add;
-								}
-							}*/
 						}
 					}
 				}
