@@ -3722,7 +3722,19 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 		
-	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl<<endl;
+	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl;
+
+	double ipc = FT.size();
+	for (int i = FT.size(); i>0; i--)
+	{
+		//if (FT.at(i-1).COMMIT0 > 0)
+	}
+	if (clk > 0)
+		ipc = ipc/clk;
+	int t = FT.size();
+	cout<<" IPC = ";
+	printf("%.3f", ipc);
+	cout<<endl<<endl;
 	if (!last_print)
 		cout<<"Press any key to continue (e to jump to output)...";
 	else
