@@ -946,22 +946,25 @@ void ReplaceAll( string &s, const string &search, const string &replace ) {
 
 //Function to remove multiple tabs and spaces
 string FormatLine (string line) {
+
+	//Remove comments
+	if (line.find("//") != string::npos)
+		line = line.substr(0, line.find("//"));
+	
 	//Replace tabs with spaces
 	std::replace( line.begin(), line.end(), '\t', ' ');
 
 	//Remove leading and trailing blanks
 	string::size_type begin = line.find_first_not_of(" \t");
 	string::size_type end   = line.find_last_not_of(" \t");
-	line = line.substr(begin, end + 1);
+	if (begin != end)
+		line = line.substr(begin, end + 1);
 
 	//Remove multiple instances of spaces
 	string::iterator new_end = std::unique(line.begin(), line.end(), BothAreSpaces);
 	line.erase(new_end, line.end()); 
 
 	//Convert to lowercase
-	//std::locale loc;
-	//for (std::string::size_type i=0; i<line.length(); ++i)
-		//line[i] = std::tolower(line[i],loc);
 	std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 
 	//Remove spaces before and after '='
@@ -1182,10 +1185,11 @@ int main()
 		string line;
 		while (getline(myfile, line))							//Loop to get next line
 		{
-			if (!line.empty())
+			if (!line.empty() && line.find("//") != 0)
 			{
 				line = FormatLine(line);						//Function to remove extra tabs and spaces and convert to lowercase
-				ParseLine(line);								//Function to parse the line
+				if (!line.empty() && line.size() > 3)
+					ParseLine(line);								//Function to parse the line
 			}
 		}
 		myfile.close();
@@ -1228,6 +1232,15 @@ int main()
 	for (int i=0; i<print_code.size(); i++)
 		cout<<print_code.at(i)<<endl;
 	cout<<endl;
+	bool wrong_code = false;
+	if (cur_code.size() != print_code.size())
+		wrong_code = true;
+	if (wrong_code)
+	{
+		cout<<"Please correct the code errors and run the program again.";
+		_getch();
+		exit(0);
+	}
 	cout << "Continue? (y/n)";
 	char input;
 	cin >> input;
@@ -3732,7 +3745,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	if (clk > 0)
 		ipc = ipc/clk;
 	int t = FT.size();
-	cout<<" IPC = ";
+	cout<<" Average IPC        = ";
 	printf("%.3f", ipc);
 	cout<<endl<<endl;
 	if (!last_print)
