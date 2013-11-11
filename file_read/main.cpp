@@ -20,7 +20,526 @@ string IntAdderInstrns[5] = {"beq", "bne", "add", "addi", "sub"};
 string FPAdderInstrns[2] = {"add_d", "sub_d"};
 string FPMulInstrns[2] = {"mult_d", "div_d"};
 string LDInstrns[2] = {"ld", "sd"};
-vector<string> cur_code, code;									//Contains the lines of code
+vector<string> cur_code, code, print_code;									//Contains the lines of code
+
+bool StringIsInt (string str) {
+	if (str == "")
+		return true;
+	else
+	{
+		stringstream ss;
+		ss << str;
+		int num = 0;
+		ss >> num;
+		if(ss.good()) { return false; }
+		else if (num == 0 && str.at(0) != '0') { return false; }
+		else return true;
+	}
+}
+void ReplaceAll( string &s, const string &search, const string &replace );
+
+bool found = false;
+bool CodeIsIntAdderInstrn(vector<string> string_list, string &line) {
+	found = false;
+	for (int i=0; i<5; i++)
+	{
+		if ((string_list.at(0) == IntAdderInstrns[i]) && (i <= 1 || i == 3) && (string_list.size() == 4)) //If beq, bne or add.i
+		{
+			found = true;
+			if (string_list.at(1).at(0) == 'r' && string_list.at(2).at(0) == 'r')		//If both integer registers
+			{
+				if (string_list.at(1).size() == 1)
+					string_list.at(1) = "r0";
+				if (string_list.at(2).size() == 1)
+					string_list.at(2) = "r0";
+				ReplaceAll(line, "r,", "r0,");
+
+				string error = "";
+				string reg1 = string_list.at(1).substr(1,string::npos);
+				string reg2 = string_list.at(2).substr(1,string::npos);
+				int reg1_num = atoi(reg1.c_str());
+				int reg2_num = atoi(reg2.c_str());
+				
+				if (!StringIsInt(reg1))
+					error+= string_list.at(1) + " : " + reg1 + " should be an integer.";
+				if (!StringIsInt(reg2))
+				{
+					if (error != "")
+					{
+						error+="\n";
+						for (int j=0; j<line.size(); j++) error+=" ";
+						error+="\t: ";
+					}
+					error+= string_list.at(2) + " : " + reg2 + " should be an integer.";
+				}
+
+				if (StringIsInt(reg1) && StringIsInt(reg2) && StringIsInt(string_list.at(3)) && reg1_num >= 0 && reg1_num < 32 &&  reg2_num >= 0 && reg2_num < 32) { return true; } //If registers in 0-31 and offset is integer
+				else
+				{
+					if (!(reg1_num >= 0 && reg1_num < 32))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(1) + " : " + reg1 + " should be an integer between 0 & 31.";
+					}
+
+					if (!(reg2_num >= 0 && reg2_num < 32))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(2) + " : " + reg2 + " should be an integer between 0 & 31.";
+					}
+
+					print_code.push_back(line + "\t: " + error);
+					return false;
+				}
+			}
+			else
+			{
+				string error = "";
+				if (string_list.at(1).at(0) != 'r')
+					error += string_list.at(1);
+				if (string_list.at(2).at(0) != 'r')
+				{
+					if (error != "")
+						error+=" and ";
+					error += string_list.at(2);
+				}
+				print_code.push_back(line + "\t: " + error + " should be Integer Register(s)."); return false;
+			}
+		}
+
+		else if ((string_list.at(0) == IntAdderInstrns[i]) && (i == 2 || i == 4) && (string_list.size() == 4)) //If add or sub
+		{
+			found = true;
+			if (string_list.at(1).at(0) == 'r' && string_list.at(2).at(0) == 'r' && string_list.at(3).at(0) == 'r')		//If all integer registers
+			{
+				if (string_list.at(1).size() == 1)
+					string_list.at(1) = "r0";
+				if (string_list.at(2).size() == 1)
+					string_list.at(2) = "r0";
+				if (string_list.at(3).size() == 1)
+					string_list.at(3) = "r0";
+				ReplaceAll(line, "r,", "r0,");
+
+				string error = "";
+				string reg1 = string_list.at(1).substr(1,string::npos);
+				string reg2 = string_list.at(2).substr(1,string::npos);
+				string reg3 = string_list.at(3).substr(1,string::npos);
+				int reg1_num = atoi(reg1.c_str());
+				int reg2_num = atoi(reg2.c_str());
+				int reg3_num = atoi(reg3.c_str());
+
+				if (!StringIsInt(reg1))
+					error+= string_list.at(1) + " : " + reg1 + " should be an integer.";
+				if (!StringIsInt(reg2))
+				{
+					if (error != "")
+					{
+						error+="\n";
+						for (int j=0; j<line.size(); j++) error+=" ";
+						error+="\t: ";
+					}
+					error+= string_list.at(2) + " : " + reg2 + " should be an integer.";
+				}
+				if (!StringIsInt(reg3))
+				{
+					if (error != "")
+					{
+						error+="\n";
+						for (int j=0; j<line.size(); j++) error+=" ";
+						error+="\t: ";
+					}
+					error+= string_list.at(3) + " : " + reg3 + " should be an integer.";
+				}
+				
+				if (StringIsInt(reg1) && StringIsInt(reg2) && StringIsInt(reg3) && reg1_num >= 0 && reg1_num < 32 &&  reg2_num >= 0 && reg2_num < 32 &&  reg3_num >= 0 && reg3_num < 32) { return true; }  //If registers in 0-31
+				else
+				{
+					if (!(reg1_num >= 0 && reg1_num < 32))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(1) + " : " + reg1 + " should be an integer between 0 & 31.";
+					}
+
+					if (!(reg2_num >= 0 && reg2_num < 32))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(2) + " : " + reg2 + " should be an integer between 0 & 31.";
+					}
+
+					if (!(reg3_num >= 0 && reg3_num < 32))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(3) + " : " + reg3 + " should be an integer between 0 & 31.";
+					}
+
+					print_code.push_back(line + "\t: " + error);
+					return false;
+				}
+			}
+			else
+			{
+				string error = "";
+				if (string_list.at(1).at(0) != 'r')
+					error += string_list.at(1);
+				if (string_list.at(2).at(0) != 'r')
+				{
+					if (error != "")
+						error+=", ";
+					error += string_list.at(2);
+				}
+				if (string_list.at(3).at(0) != 'r')
+				{
+					if (error != "")
+						error+=" and ";
+					error += string_list.at(3);
+				}
+				print_code.push_back(line + "\t: " + error + " should be Integer Register(s)."); return false;
+			}
+		}
+	}
+	return false;
+}
+
+bool CodeIsFPAdderInstrn(vector<string> string_list, string &line) {
+	if (!found)
+	{
+		for (int i=0; i<2; i++)
+		{
+			string operation = string_list[0];
+			std::replace(operation.begin(), operation.end(), '.', '_');
+			if ((operation == FPAdderInstrns[i])  && (string_list.size() == 4)) //If add.d or s.d
+			{
+				found = true;
+				if (string_list.at(1).at(0) == 'f' && string_list.at(2).at(0) == 'f' && string_list.at(3).at(0) == 'f') //If all FP registers
+				{
+					if (string_list.at(1).size() == 1)
+						string_list.at(1) = "f0";
+					if (string_list.at(2).size() == 1)
+						string_list.at(2) = "f0";
+					if (string_list.at(3).size() == 1)
+						string_list.at(3) = "f0";
+					ReplaceAll(line, "f,", "f0,");
+
+					string error = "";
+					string reg1 = string_list.at(1).substr(1,string::npos);
+					string reg2 = string_list.at(2).substr(1,string::npos);
+					string reg3 = string_list.at(3).substr(1,string::npos);
+					int reg1_num = atoi(reg1.c_str());
+					int reg2_num = atoi(reg2.c_str());
+					int reg3_num = atoi(reg3.c_str());
+
+					if (!StringIsInt(reg1))
+						error+= string_list.at(1) + " : " + reg1 + " should be an integer.";
+					if (!StringIsInt(reg2))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(2) + " : " + reg2 + " should be an integer.";
+					}
+					if (!StringIsInt(reg3))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(3) + " : " + reg3 + " should be an integer.";
+					}
+				
+					if (StringIsInt(reg1) && StringIsInt(reg2) && StringIsInt(reg3) && reg1_num >= 0 && reg1_num < 32  &&  reg2_num >= 0 && reg2_num < 32  &&  reg3_num >= 0 && reg3_num < 32) { return true; } //If reg between 0-31
+					else
+					{
+						if (!(reg1_num >= 0 && reg1_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(1) + " : " + reg1 + " should be an integer between 0 & 31.";
+						}
+
+						if (!(reg2_num >= 0 && reg2_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(2) + " : " + reg2 + " should be an integer between 0 & 31.";
+						}
+
+						if (!(reg3_num >= 0 && reg3_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(3) + " : " + reg3 + " should be an integer between 0 & 31.";
+						}
+
+						print_code.push_back(line + "\t: " + error);
+						return false;
+					}
+				}
+
+				else
+				{
+					string error = "";
+					if (string_list.at(1).at(0) != 'f')
+						error += string_list.at(1);
+					if (string_list.at(2).at(0) != 'f')
+					{
+						if (error != "")
+							error+=", ";
+						error += string_list.at(2);
+					}
+					if (string_list.at(3).at(0) != 'f')
+					{
+						if (error != "")
+							error+=" and ";
+						error += string_list.at(3);
+					}
+					print_code.push_back(line + "\t: " + error + " should be FP Register(s)."); return false;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool CodeIsFPMulInstrn(vector<string> string_list, string &line) {
+	if (!found)
+	{
+		for (int i=0; i<2; i++)
+		{
+			string operation = string_list[0];
+			std::replace(operation.begin(), operation.end(), '.', '_');
+			if ((operation == FPMulInstrns[i])  && (string_list.size() == 4)) //If mult.d or div.d
+			{
+				found = true;
+				if (string_list.at(1).at(0) == 'f' && string_list.at(2).at(0) == 'f' && string_list.at(3).at(0) == 'f') //If all FP registers
+				{
+					if (string_list.at(1).size() == 1)
+						string_list.at(1) = "f0";
+					if (string_list.at(2).size() == 1)
+						string_list.at(2) = "f0";
+					if (string_list.at(3).size() == 1)
+						string_list.at(3) = "f0";
+					ReplaceAll(line, "f,", "f0,");
+
+					string error = "";
+					string reg1 = string_list.at(1).substr(1,string::npos);
+					string reg2 = string_list.at(2).substr(1,string::npos);
+					string reg3 = string_list.at(3).substr(1,string::npos);
+					int reg1_num = atoi(reg1.c_str());
+					int reg2_num = atoi(reg2.c_str());
+					int reg3_num = atoi(reg3.c_str());
+
+					if (!StringIsInt(reg1))
+						error+= string_list.at(1) + " : " + reg1 + " should be an integer.";
+					if (!StringIsInt(reg2))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(2) + " : " + reg2 + " should be an integer.";
+					}
+					if (!StringIsInt(reg3))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(3) + " : " + reg3 + " should be an integer.";
+					}
+				
+					if (StringIsInt(reg1) && StringIsInt(reg2) && StringIsInt(reg3) && reg1_num >= 0 && reg1_num < 32  &&  reg2_num >= 0 && reg2_num < 32  &&  reg3_num >= 0 && reg3_num < 32) { return true; } //If reg between 0-31
+					else
+					{
+						if (!(reg1_num >= 0 && reg1_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(1) + " : " + reg1 + " should be an integer between 0 & 31.";
+						}
+
+						if (!(reg2_num >= 0 && reg2_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(2) + " : " + reg2 + " should be an integer between 0 & 31.";
+						}
+
+						if (!(reg3_num >= 0 && reg3_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(3) + " : " + reg3 + " should be an integer between 0 & 31.";
+						}
+
+						print_code.push_back(line + "\t: " + error);
+						return false;
+					}
+				}
+
+				else
+				{
+					string error = "";
+					if (string_list.at(1).at(0) != 'f')
+						error += string_list.at(1);
+					if (string_list.at(2).at(0) != 'f')
+					{
+						if (error != "")
+							error+=", ";
+						error += string_list.at(2);
+					}
+					if (string_list.at(3).at(0) != 'f')
+					{
+						if (error != "")
+							error+=" and ";
+						error += string_list.at(3);
+					}
+					print_code.push_back(line + "\t: " + error + " should be FP Register(s)."); return false;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool CodeIsLSInstrn(vector<string> string_list, string &line) {
+	if (!found)
+	{
+		for (int i=0; i<2; i++)
+		{
+			if ((string_list.at(0) == LDInstrns[i])  && (string_list.size() == 3)) //If ld or sd
+			{
+				found = true;
+				if (string_list.at(1).at(0) == 'f' && string_list.at(2).find('(') != string::npos && string_list.at(2).at(0)!='(' && string_list.at(2).find(')') != string::npos && string_list.at(2).at(0)!=')' && string_list.at(2).at(string_list.at(2).size()-1) == ')' && string_list.at(2).at(string_list.at(2).find('(')+1) == 'r') //If first is FP and second is int reg
+				{
+					if (string_list.at(1).size() == 1)
+						string_list.at(1) = "f0";
+					ReplaceAll(line, "f,", "f0,");
+					ReplaceAll(line, "(r)", "(r0)");
+
+					string error = "";
+					string reg1 = string_list.at(1).substr(1,string::npos);
+					string reg2 = string_list.at(2).substr(string_list.at(2).find('(')+2, string_list.at(2).find(')')-string_list.at(2).find('(')-2);
+				
+					if (!StringIsInt(reg1))
+						error+= string_list.at(1) + " : " + reg1 + " should be an integer.";
+					if (!StringIsInt(reg2))
+					{
+						if (error != "")
+						{
+							error+="\n";
+							for (int j=0; j<line.size(); j++) error+=" ";
+							error+="\t: ";
+						}
+						error+= string_list.at(2) + " : " + reg2 + " should be an integer.";
+					}
+
+					int reg1_num = atoi(reg1.c_str());
+					string offset = string_list.at(2).substr(0,string_list.at(2).find('('));
+					int reg2_num = atoi(reg2.c_str());
+				
+					if (StringIsInt(reg1) && StringIsInt(reg2) && StringIsInt(offset) && reg1_num >= 0 && reg1_num < 32 && reg2_num >= 0 && reg2_num < 32) { return true; } //If regs between 0-31 and offset is int
+					else
+					{
+						if (!(reg1_num >= 0 && reg1_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(1) + " : " + reg1 + " should be an integer between 0 & 31.";
+						}
+
+						if (!(reg2_num >= 0 && reg2_num < 32))
+						{
+							if (error != "")
+							{
+								error+="\n";
+								for (int j=0; j<line.size(); j++) error+=" ";
+								error+="\t: ";
+							}
+							error+= string_list.at(2) + " : " + reg2 + " should be an integer between 0 & 31.";
+						}
+
+						print_code.push_back(line + "\t: " + error);
+						return false;
+					}
+				}
+				
+				else
+				{
+					print_code.push_back(line + "\t: Unrecognized format for Load/Store Instructions."); return false;
+				}
+			}
+		}
+	}
+
+	if (!found)
+	{
+		string str = line + "\t: Operation not recognized or number of inputs does not match the operation.";
+		print_code.push_back(str);
+	}
+	return false;
+}
 
 
 
@@ -479,7 +998,12 @@ vector<string> BreakLine (string line) {
 }
 
 //Function to parse the line
-void ParseLine(vector<string> string_list, string line) {
+int line_cnt = 0;
+int code_start = 0;
+void ParseLine(string line) {
+	line_cnt++;
+	vector<string> string_list = BreakLine(line);	//Function to break a line into it's words	
+
 	if (string_list[0] == "rob")
 	{
 		ROB_entries = atoi(string_list[3].c_str());
@@ -534,7 +1058,17 @@ void ParseLine(vector<string> string_list, string line) {
 		}
 	}
 	else if (!string_list.empty() && (string_list.size() < 5) && (string_list.size() > 2))
-		cur_code.push_back(line);
+	{
+		if (CodeIsIntAdderInstrn(string_list, line) || CodeIsFPAdderInstrn(string_list, line) || CodeIsFPMulInstrn(string_list, line) || CodeIsLSInstrn(string_list, line))
+		{
+			if (code_start == 0)
+				code_start = line_cnt;
+			cur_code.push_back(line);
+			print_code.push_back(line);
+		}
+	}
+	else if (!string_list.empty() && line_cnt > code_start && code_start > 0)
+		print_code.push_back(line + "\t:Unrecognized Format. Too many or too few words.");
 }
 
 string SelectFile(char InputFolder[]) {
@@ -636,7 +1170,6 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 int main() 
 {
-	char see_all = ' ';
 	char InputFolder[] = "\\\\psf\\Home\\Desktop\\Input Files\\";
 	string file_path = SelectFile(InputFolder);
 
@@ -652,8 +1185,7 @@ int main()
 			if (!line.empty())
 			{
 				line = FormatLine(line);						//Function to remove extra tabs and spaces and convert to lowercase
-				vector<string> string_list = BreakLine(line);	//Function to break a line into it's words		
-				ParseLine(string_list, line);					//Function to parse the line
+				ParseLine(line);								//Function to parse the line
 			}
 		}
 		myfile.close();
@@ -693,8 +1225,8 @@ int main()
 			cout << "Mem[" << i <<"] = " << Mem[i] << "\n";
 	}
 	cout<<endl<<endl<<"Code:"<<endl;
-	for (int i=0; i<cur_code.size(); i++)
-		cout<<cur_code.at(i)<<endl;
+	for (int i=0; i<print_code.size(); i++)
+		cout<<print_code.at(i)<<endl;
 	cout<<endl;
 	cout << "Continue? (y/n)";
 	char input;
@@ -2147,7 +2679,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	int maxFractPartVk = 0;
 	int maxVjCol = 0;
 	
-	int totalRScnt = int_adder_RS_cnt + fp_adder_RS_cnt + fp_mul_RS_cnt + ls_RS_cnt;
+	int totalRScnt = int_adder_RS_cnt + fp_adder_RS_cnt + fp_mul_RS_cnt;// + ls_RS_cnt;
 	if (totalRScnt != 0)
 	{
 		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++) 
@@ -2258,7 +2790,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			}
 		}
 
-		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			if (!RS_LSU[i].isEmpty())
 			{
@@ -2292,7 +2824,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 						maxIntPartVk = ss1.str().size();
 				}
 			}
-		}
+		}*/
 	}
 
 
@@ -2311,7 +2843,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 	if (totalRScnt != 0)
 	{
-		int j = 1;
+		int j = 0;
 		cout << endl << endl << " Reservation Stations:" << endl;
 		cout<<"         _______________________________________";
 		for (int i=0; i<2*maxVjCol+5; i++) cout<<"_";
@@ -2371,7 +2903,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-		j=1; num_RS = 0;
+		j=0; num_RS = 0;
 		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
 		{
 			if (!RS_FPAdder[i].isEmpty())
@@ -2404,7 +2936,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-		j=1; num_RS = 0;
+		j=0; num_RS = 0;
 		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
 		{
 			if (!RS_FPMultiplier[i].isEmpty())
@@ -2421,7 +2953,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			if (!RS_LSU[i].isEmpty() && num2_RS > 0)
 			{
@@ -2437,7 +2969,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-		j=1; num_RS = 0;
+		j=0; num_RS = 0;
 		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
 		{
 			if (!RS_LSU[i].isEmpty())
@@ -2450,7 +2982,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				cout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt);
 			}
 			j++;
-		}
+		}*/
 
 		cout<<"        |________|_________|_________|_________|_";
 		for (int i=0; i<maxVjCol; i++) cout<<"_";
@@ -2471,6 +3003,157 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 	int maxIntPart = 0;
 	int maxFractPart = 0;
+	int maxROBpart = 0;
+	int maxAddSize = 0;
+	int diff = 0;
+	int maxThirdCol = 0;
+
+	for (int i=0; i<LSQ.size(); i++)
+	{
+		if (LSQ.at(i).code_cnt != -1)
+		{
+			if (LSQ.at(i).address.size() > maxAddSize)
+				maxAddSize = LSQ.at(i).address.size();
+			if (LSQ.at(i).val.find('R') == string::npos)
+			{
+				if (LSQ.at(i).val.find('.') != string::npos)
+				{
+					if (LSQ.at(i).val.find('.') > maxIntPart)
+						maxIntPart = LSQ.at(i).val.size();
+					if (LSQ.at(i).val.size()-LSQ.at(i).val.find('.')-1 > maxFractPart)
+						maxFractPart = LSQ.at(i).val.size()-LSQ.at(i).val.find('.')-1;
+				}
+				else
+				{
+					if (LSQ.at(i).val.size() > maxIntPart)
+						maxIntPart = LSQ.at(i).val.size();
+				}
+			}
+			else if (LSQ.at(i).val.find('R') != string::npos && LSQ.at(i).val.size() > maxROBpart)
+			{ maxROBpart = LSQ.at(i).val.size();}
+		}
+	}
+
+	diff = 0;
+	maxThirdCol = maxIntPart;
+	if (maxFractPart > 0)
+		maxThirdCol+= maxFractPart+1;
+	if (maxROBpart > maxThirdCol)
+		maxThirdCol = maxROBpart;
+	if (maxThirdCol < 5)
+	{
+		diff = (5 - maxThirdCol)/2;
+		maxThirdCol = 5; 
+	}
+	if (maxAddSize < 7)
+		maxAddSize = 7;
+
+
+	bool first = true;
+	for (int j=0; j<LSQ.size(); j++)
+	{
+		if (LSQ.at(j).code_cnt != -1)
+		{
+			int curIntPart, curFractPart, curAddSize;
+			curAddSize = LSQ.at(j).address.size();
+			if (LSQ.at(j).val.find('R') == string::npos)
+			{
+				stringstream ss (stringstream::in | stringstream::out);
+				ss << LSQ.at(j).val;
+				if (ss.str().find('.') != string::npos)
+				{
+					curIntPart = ss.str().find('.');
+					curFractPart = ss.str().size()-ss.str().find('.')-1;
+				}
+				else
+				{
+					curIntPart = ss.str().size();
+					curFractPart = -1;
+				}
+			}
+			else if (LSQ.at(j).val.find('R') != string::npos)
+			{
+				curIntPart = maxIntPart;
+				curFractPart = 0;
+			}
+
+
+			if (first)
+			{
+				cout<<endl<<endl<<" Load/Store Queue"<<endl;
+				cout<<"\t ";
+				for (int i=0; i<maxThirdCol+maxAddSize+16; i++) cout<<"_";
+				cout<<endl;
+				cout<<"\t| Num | Op | ";
+				for (int i=0; i<(maxAddSize-7)/2; i++) cout<<" ";
+				cout<<"Address";
+				for (int i=0; i<(maxAddSize-6)/2; i++) cout<<" ";
+				cout<<" | ";
+				for (int i=0; i<(maxThirdCol-5)/2; i++) cout<<" ";
+				cout<<"Value";
+				for (int i=0; i<(maxThirdCol-4)/2; i++) cout<<" ";
+				cout<< " |"<<endl;
+				cout<<"\t|-----|----|---------|";
+				for (int i=0; i<maxThirdCol+2; i++) cout<<"-";
+				cout<<"|"<<endl;
+				first = false;
+			}
+			cout<<"\t| ";
+			if (j < 100) cout<<" ";
+			if (j < 10) cout<<" ";
+			cout<<j<<" | ";
+			cout<<LSQ.at(j).op<<"  | ";
+
+			if (LSQ.at(j).address.find('+') == string::npos)
+			{
+				for (int i=0; i<((maxAddSize-curAddSize)/2); i++) cout<<" ";
+				if (atoi(LSQ.at(j).address.c_str()) < 100) cout<<" ";
+				if (atoi(LSQ.at(j).address.c_str()) < 10) cout<<" ";
+				cout<<LSQ.at(j).address;
+				for (int i=0; i<(maxAddSize-curAddSize)/2; i++) cout<<" ";
+				cout<<" | ";
+			}
+			else
+			{
+				cout<<LSQ.at(j).address;
+				for (int i=0; i<maxAddSize-curAddSize; i++) cout<<" ";
+				cout<<" | ";
+			}
+
+			for (int j=0; j<maxIntPart-curIntPart+diff; j++)
+				cout<<" ";
+			cout << LSQ.at(j).val;
+			if (LSQ.at(j).val.find('R') == string::npos)
+				for (int k=0; k<maxThirdCol-maxIntPart-curFractPart-1-diff; k++)
+					cout<<" ";
+			else if (LSQ.at(j).val.find('R') != string::npos)
+				for (int k=0; k<maxThirdCol-LSQ.at(j).val.size()-diff; k++)
+					cout<<" ";
+			cout << " | " << LSQ.at(j).code_cnt << endl;
+		}
+	}
+	if (!first)
+	{	
+		cout<<"\t|_____|____|_";
+		for (int i=0; i<maxAddSize; i++) cout<<"_";
+		cout<<"_|_";
+		for (int i=0; i<maxThirdCol ; i++) cout<<"_";
+		cout<<"_|"<<endl;
+	}
+
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+	maxIntPart = 0;
+	maxFractPart = 0;
 
 	for (int i=0; i<ROB_entries; i++)
 	{
@@ -2492,7 +3175,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 			}
 		}
 	}
-	int maxThirdCol = maxIntPart;
+	maxThirdCol = maxIntPart;
 	if (maxFractPart > 0)
 		maxThirdCol+= maxFractPart+1;
 	if (maxThirdCol < 6)
@@ -2500,7 +3183,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-	bool first = true;
+	first = true;
 	for (int i=0; i<ROB_entries; i++)
 	{
 		if (!ROB[i].isEmpty())
@@ -2918,7 +3601,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		}
 	}
 
-	int diff = 0;
+	diff = 0;
 	maxThirdCol = maxIntPart;
 	if (maxFractPart > 0)
 		maxThirdCol+= maxFractPart+1;
@@ -2991,151 +3674,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-	maxIntPart = 0;
-	maxFractPart = 0;
-	int maxROBpart = 0;
-	int maxAddSize = 0;
-
-	for (int i=0; i<LSQ.size(); i++)
-	{
-		if (LSQ.at(i).code_cnt != -1)
-		{
-			if (LSQ.at(i).address.size() > maxAddSize)
-				maxAddSize = LSQ.at(i).address.size();
-			if (LSQ.at(i).val.find('R') == string::npos)
-			{
-				if (LSQ.at(i).val.find('.') != string::npos)
-				{
-					if (LSQ.at(i).val.find('.') > maxIntPart)
-						maxIntPart = LSQ.at(i).val.size();
-					if (LSQ.at(i).val.size()-LSQ.at(i).val.find('.')-1 > maxFractPart)
-						maxFractPart = LSQ.at(i).val.size()-LSQ.at(i).val.find('.')-1;
-				}
-				else
-				{
-					if (LSQ.at(i).val.size() > maxIntPart)
-						maxIntPart = LSQ.at(i).val.size();
-				}
-			}
-			else if (LSQ.at(i).val.find('R') != string::npos && LSQ.at(i).val.size() > maxROBpart)
-			{ maxROBpart = LSQ.at(i).val.size();}
-		}
-	}
-
-	diff = 0;
-	maxThirdCol = maxIntPart;
-	if (maxFractPart > 0)
-		maxThirdCol+= maxFractPart+1;
-	if (maxROBpart > maxThirdCol)
-		maxThirdCol = maxROBpart;
-	if (maxThirdCol < 5)
-	{
-		diff = (5 - maxThirdCol)/2;
-		maxThirdCol = 5; 
-	}
-	if (maxAddSize < 7)
-		maxAddSize = 7;
-
-
-	first = true;
-	for (int j=0; j<LSQ.size(); j++)
-	{
-		if (LSQ.at(j).code_cnt != -1)
-		{
-			int curIntPart, curFractPart, curAddSize;
-			curAddSize = LSQ.at(j).address.size();
-			if (LSQ.at(j).val.find('R') == string::npos)
-			{
-				stringstream ss (stringstream::in | stringstream::out);
-				ss << LSQ.at(j).val;
-				if (ss.str().find('.') != string::npos)
-				{
-					curIntPart = ss.str().find('.');
-					curFractPart = ss.str().size()-ss.str().find('.')-1;
-				}
-				else
-				{
-					curIntPart = ss.str().size();
-					curFractPart = -1;
-				}
-			}
-			else if (LSQ.at(j).val.find('R') != string::npos)
-			{
-				curIntPart = maxIntPart;
-				curFractPart = 0;
-			}
-
-
-			if (first)
-			{
-				cout<<endl<<endl<<" Load/Store Queue"<<endl;
-				cout<<"\t ";
-				for (int i=0; i<maxThirdCol+maxAddSize+10; i++) cout<<"_";
-				cout<<endl;
-				cout<<"\t| Op | ";
-				for (int i=0; i<(maxAddSize-7)/2; i++) cout<<" ";
-				cout<<"Address";
-				for (int i=0; i<(maxAddSize-6)/2; i++) cout<<" ";
-				cout<<" | ";
-				for (int i=0; i<(maxThirdCol-5)/2; i++) cout<<" ";
-				cout<<"Value";
-				for (int i=0; i<(maxThirdCol-4)/2; i++) cout<<" ";
-				cout<< " |"<<endl;
-				cout<<"\t|----|---------|";
-				for (int i=0; i<maxThirdCol+2; i++) cout<<"-";
-				cout<<"|"<<endl;
-				first = false;
-			}
-			cout<<"\t| "<<LSQ.at(j).op<<"  | ";
-
-			if (LSQ.at(j).address.find('+') == string::npos)
-			{
-				for (int i=0; i<((maxAddSize-curAddSize)/2); i++) cout<<" ";
-				if (atoi(LSQ.at(j).address.c_str()) < 100) cout<<" ";
-				if (atoi(LSQ.at(j).address.c_str()) < 10) cout<<" ";
-				cout<<LSQ.at(j).address;
-				for (int i=0; i<(maxAddSize-curAddSize)/2; i++) cout<<" ";
-				cout<<" | ";
-			}
-			else
-			{
-				cout<<LSQ.at(j).address;
-				for (int i=0; i<maxAddSize-curAddSize; i++) cout<<" ";
-				cout<<" | ";
-			}
-
-			for (int j=0; j<maxIntPart-curIntPart+diff; j++)
-				cout<<" ";
-			cout << LSQ.at(j).val;
-			if (LSQ.at(j).val.find('R') == string::npos)
-				for (int k=0; k<maxThirdCol-maxIntPart-curFractPart-1-diff; k++)
-					cout<<" ";
-			else if (LSQ.at(j).val.find('R') != string::npos)
-				for (int k=0; k<maxThirdCol-LSQ.at(j).val.size()-diff; k++)
-					cout<<" ";
-			cout << " | " << LSQ.at(j).code_cnt << endl;
-		}
-	}
-	if (!first)
-	{	
-		cout<<"\t|____|_";
-		for (int i=0; i<maxAddSize; i++) cout<<"_";
-		cout<<"_|_";
-		for (int i=0; i<maxThirdCol ; i++) cout<<"_";
-		cout<<"_|"<<endl;
-	}
-
-
-
-
-
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
