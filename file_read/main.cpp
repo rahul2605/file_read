@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 #include <conio.h>
-//#include <locale>
 #include <algorithm>
 #include <vector>
 #include <tinydir.h>
