@@ -831,18 +831,45 @@ public: bool isEmpty()
 		else return false;
 	}
 
-public: void print(int i, int maxThirdCol, int maxIntPart, int curIntPart, int curFractPart, int cnt)
+public: void print(int i, int maxThirdCol, int maxIntPart, int maxFractPart, int curIntPart, int curFractPart, int cnt)
 	{
 		if (!(this->isEmpty())) { 
 			cout << "ROB" << i;
 			if (i < 100) cout << " ";
 			if (i < 10) cout << " ";
 			cout << " | " << Type << "\t | " << Dst << "\t | ";
-			for (int j=0; j<maxIntPart-curIntPart; j++)
-				cout<<" ";
-			cout << Val;
-			for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1; j++)
-				cout<<" ";
+			if (maxIntPart + maxFractPart + 1 < 5)
+			{
+				if (curFractPart == -1)
+				{
+					for (int j=0; j<(maxThirdCol-maxIntPart)/2; j++)
+						cout<<" ";
+					for (int j=curIntPart; j<maxIntPart; j++)
+						cout<<" ";
+				}
+				else
+				{
+					for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart-1)/2; j++)
+						cout<<" ";
+					for (int j=curIntPart+curFractPart; j<maxIntPart+maxFractPart; j++)
+						cout<<" ";
+				}
+				cout << Val;
+				if (curFractPart == -1)
+					for (int j=0; j<(maxThirdCol-maxIntPart+1)/2; j++)
+						cout<<" ";
+				else
+					for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart)/2; j++)
+						cout<<" ";
+			}
+			else
+			{
+				for (int j=0; j<maxIntPart-curIntPart; j++)
+					cout<<" ";
+				cout << Val;
+				for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1; j++)
+					cout<<" ";
+			}
 			cout << " |   " << Ready << "   | " <<cnt << endl; 
 		}
 	}
@@ -1088,8 +1115,15 @@ string SelectFile(char InputFolder[]) {
 		string s;
 		ss << file.name;
 		ss >> s;
+		if (s.size() > 4)
+		{
+			char r = s.at(s.size()-4);
+			r = s.at(s.size()-3);
+			r = s.at(s.size()-2);
+			r = s.at(s.size()-1);
+		}
 
-		if (s.at(0) != '.' && !file.is_dir)
+		if (!file.is_dir && s.size() > 4 && s.at(s.size()-4) == '.' && s.at(s.size()-3) == 't' && s.at(s.size()-2) == 'x' && s.at(s.size()-1) == 't')
 		{
 			if (file_count < 10)
 				cout<<" ";
@@ -1134,7 +1168,7 @@ string SelectFile(char InputFolder[]) {
 		ss << file.name;
 		ss >> s;
 
-		if (s.at(0) != '.' && !file.is_dir)
+		if (!file.is_dir && s.size() > 4 && s.at(s.size()-4) == '.' && s.at(s.size()-3) == 't' && s.at(s.size()-2) == 'x' && s.at(s.size()-1) == 't')
 		{
 			file_count++;
 		}
@@ -3241,7 +3275,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 				cout<<"|-------|"<<endl;
 				first = false;
 			}
-			ROB[i].print(i, maxThirdCol, maxIntPart, curIntPart, curFractPart, ROB[i].code_cnt);
+			ROB[i].print(i, maxThirdCol, maxIntPart, maxFractPart, curIntPart, curFractPart, ROB[i].code_cnt);
 		}
 	}
 	if (!first)
