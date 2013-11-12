@@ -3736,10 +3736,15 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		
 	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl;
 
-	double ipc = FT.size();
+	double ipc = 0;
 	for (int i = FT.size(); i>0; i--)
 	{
-		//if (FT.at(i-1).COMMIT0 > 0)
+		if (FT.at(i-1).COMMIT0 > 0)
+		{
+			ipc = i;
+			break;
+		}
+
 	}
 	if (clk > 0)
 		ipc = ipc/clk;
