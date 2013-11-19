@@ -1,0 +1,22 @@
+		    # of rs    Cycles in EX	Cycles in Mem	  # of FUs
+Integer adder		2	    1		                     1
+FP adder		3	    3				     1
+FP multiplier		2	    20		 		     1
+Load/store unit	        3	    1	        	4	     1
+
+
+ROB entries = 128
+R1=10, R2=20, R4=5, R5=15, R7=100, R9=21, R10=11
+F2=30.1, F4=2.5, F5=4, F7=23.78, F8=11.28, F10=5, F11=5
+Mem[20]=1
+
+
+ld f12, 100(r10)
+sd f2, 10(r2)
+div.d f12, f7, f4	//div.d always takes 40 clock cycles
+add r3, r4, r5
+add.d f3, f4, f5
+addi r6, r7, 100
+sub r8, r9, r10
+sub.d f6, f7, f8
+mult.d f9, f10, f11
