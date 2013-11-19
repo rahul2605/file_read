@@ -1206,7 +1206,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 int main() 
 {
-	char InputFolder[] = "\\\\psf\\Home\\Desktop\\Input Files\\";
+	char InputFolder[] = ".\\test_cases\\";
 	string file_path = SelectFile(InputFolder);
 
 	R[0] = 0;
