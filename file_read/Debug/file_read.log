@@ -1,4 +1,4 @@
-﻿Build started 11/16/2013 7:33:49 PM.
+﻿Build started 11/16/2013 7:36:36 PM.
 Project "\\psf\home\documents\visual studio 2010\Projects\file_read\file_read\file_read.vcxproj" on node 2 (build target(s)).
 InitializeBuildStatus:
   Creating "Debug\file_read.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -136,4 +136,4 @@ Done Building Project "\\psf\home\documents\visual studio 2010\Projects\file_rea
 
 Build succeeded.
 
-Time Elapsed 00:00:02.99
+Time Elapsed 00:00:02.60
