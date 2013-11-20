@@ -1206,6 +1206,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 int main() 
 {
+	//The local (relative file path that holds are test cases
 	char InputFolder[] = ".\\test_cases\\";
 	string file_path = SelectFile(InputFolder);
 
