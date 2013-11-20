@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tinydir.h">
+    <ClInclude Include="..\tinydir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
