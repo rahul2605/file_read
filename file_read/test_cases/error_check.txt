@@ -14,4 +14,4 @@ ld f0d, 100(r321)
 mult.d f4g, hf0, fr2
 sd f, 0(r)
 sub r33, r3g, r2
-bne re3, re, -20
+bne re3, re, -5

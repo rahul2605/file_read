@@ -1846,7 +1846,7 @@ int main()
 										
 										reg1 = string_list[1];
 										reg2 = string_list[2];
-										offset = atoi(string_list[3].c_str())/4;
+										offset = atoi(string_list[3].c_str());
 										branch_PC = cur_code_cnt+1+offset;
 										reg1_num = atoi(reg1.substr(1,string::npos).c_str());
 										reg2_num = atoi(reg2.substr(1,string::npos).c_str());
