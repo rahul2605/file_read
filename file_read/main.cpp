@@ -780,106 +780,211 @@ public: bool isEmpty()
 		else return false;
 	}
 
-public: void print(int maxVjCol, int maxIntPartVj, int cnt) 
+public: void print(int maxVjCol, int maxIntPartVj, int cnt, bool toFile = false) 
 	{
-		if (!(this->isEmpty()))
+		if (!toFile)
 		{
-			cout << Op;
-			for (int i=Op.size(); i<6; i++)
-				cout<<" ";
-			if (Dst_Tag != -1)
+			if (!(this->isEmpty()))
 			{
-				cout<<" |  ROB" << Dst_Tag;
-				if (Dst_Tag < 10)
+				cout << Op;
+				for (int i=Op.size(); i<6; i++)
 					cout<<" ";
-			}
-
-			cout << "  |  ";
-			if (Qj == "")
-				cout<<"     ";
-			else
-			{
-				if (Qj.size() == 5)
-					cout<<Qj;
-				else if (Qj.size() == 4)
-					cout<<Qj<<" ";
-			}
-			cout<< "  |  " ;
-			if (Qk == "")
-				cout<<"     ";
-			else
-			{
-				if (Qk.size() == 5)
-					cout<<Qk;
-				else if (Qk.size() == 4)
-					cout<<Qk<<" ";
-			}
-			cout<< "  | " ;
-			if (Qj == "")
-			{
-				stringstream ss (stringstream::in | stringstream::out);
-				ss << Vj;
-				int curIntPartVj, curFractPartVj;
-				if (ss.str().find('.') != string::npos)
+				if (Dst_Tag != -1)
 				{
-					curIntPartVj = ss.str().find('.');
-					curFractPartVj = ss.str().size()-ss.str().find('.')-1;
+					cout<<" |  ROB" << Dst_Tag;
+					if (Dst_Tag < 10)
+						cout<<" ";
+				}
+
+				cout << "  |  ";
+				if (Qj == "")
+					cout<<"     ";
+				else
+				{
+					if (Qj.size() == 5)
+						cout<<Qj;
+					else if (Qj.size() == 4)
+						cout<<Qj<<" ";
+				}
+				cout<< "  |  " ;
+				if (Qk == "")
+					cout<<"     ";
+				else
+				{
+					if (Qk.size() == 5)
+						cout<<Qk;
+					else if (Qk.size() == 4)
+						cout<<Qk<<" ";
+				}
+				cout<< "  | " ;
+				if (Qj == "")
+				{
+					stringstream ss (stringstream::in | stringstream::out);
+					ss << Vj;
+					int curIntPartVj, curFractPartVj;
+					if (ss.str().find('.') != string::npos)
+					{
+						curIntPartVj = ss.str().find('.');
+						curFractPartVj = ss.str().size()-ss.str().find('.')-1;
+					}
+					else
+					{
+						curIntPartVj = ss.str().size();
+						curFractPartVj = -1;
+					}
+				
+					for (int j=0; j<maxIntPartVj-curIntPartVj; j++)
+						cout<<" ";
+					cout << Vj;
+					for (int j=0; j<maxVjCol-maxIntPartVj-curFractPartVj-1; j++)
+						cout<<" ";
 				}
 				else
 				{
-					curIntPartVj = ss.str().size();
-					curFractPartVj = -1;
+					for (int j=0; j<maxVjCol; j++) cout << " ";
 				}
-				
-				for (int j=0; j<maxIntPartVj-curIntPartVj; j++)
-					cout<<" ";
-				cout << Vj;
-				for (int j=0; j<maxVjCol-maxIntPartVj-curFractPartVj-1; j++)
-					cout<<" ";
-			}
-			else
-			{
-				for (int j=0; j<maxVjCol; j++) cout << " ";
-			}
-			cout << " | ";
+				cout << " | ";
 
-			if (Qk == "")
-			{
-				stringstream ss (stringstream::in | stringstream::out);
-				ss << Vk;
-				int curIntPartVk, curFractPartVk;
-				if (ss.str().find('.') != string::npos)
+				if (Qk == "")
 				{
-					curIntPartVk = ss.str().find('.');
-					curFractPartVk = ss.str().size()-ss.str().find('.')-1;
+					stringstream ss (stringstream::in | stringstream::out);
+					ss << Vk;
+					int curIntPartVk, curFractPartVk;
+					if (ss.str().find('.') != string::npos)
+					{
+						curIntPartVk = ss.str().find('.');
+						curFractPartVk = ss.str().size()-ss.str().find('.')-1;
+					}
+					else
+					{
+						curIntPartVk = ss.str().size();
+						curFractPartVk = -1;
+					}
+				
+					for (int j=0; j<maxIntPartVj-curIntPartVk; j++)
+					cout<<" ";
+					cout << Vk;
+					for (int j=0; j<maxVjCol-maxIntPartVj-curFractPartVk-1; j++)
+						cout<<" ";
 				}
 				else
-				{
-					curIntPartVk = ss.str().size();
-					curFractPartVk = -1;
-				}
-				
-				for (int j=0; j<maxIntPartVj-curIntPartVk; j++)
-				cout<<" ";
-				cout << Vk;
-				for (int j=0; j<maxVjCol-maxIntPartVj-curFractPartVk-1; j++)
-					cout<<" ";
+					for (int j=0; j<maxVjCol; j++) cout << " ";
+
+				cout<<" | "<<cnt<<endl;
 			}
 			else
-				for (int j=0; j<maxVjCol; j++) cout << " ";
-
-			cout<<" | "<<cnt<<endl;
+			{
+				cout << "------ | ------- | ------- | ------- | ";
+				for (int i=0; i<maxVjCol; i++) cout<<"-";
+				cout<<" | ";
+				for (int i=0; i<maxVjCol; i++) cout<<"-";
+				cout<<" | ";
+				if (cnt != -1)
+					cout<<cnt;
+				cout << endl;
+			}
 		}
 		else
 		{
-			cout << "------ | ------- | ------- | ------- | ";
-			for (int i=0; i<maxVjCol; i++) cout<<"-";
-			cout<<" | ";
-			for (int i=0; i<maxVjCol; i++) cout<<"-";
-			cout<<" | ";
-			if (cnt != -1)
-				cout<<cnt;
-			cout << endl;
+			if (!(this->isEmpty()))
+			{
+				fout << Op;
+				for (int i=Op.size(); i<6; i++)
+					fout<<" ";
+				if (Dst_Tag != -1)
+				{
+					fout<<" |  ROB" << Dst_Tag;
+					if (Dst_Tag < 10)
+						fout<<" ";
+				}
+
+				fout << "  |  ";
+				if (Qj == "")
+					fout<<"     ";
+				else
+				{
+					if (Qj.size() == 5)
+						fout<<Qj;
+					else if (Qj.size() == 4)
+						fout<<Qj<<" ";
+				}
+				fout<< "  |  " ;
+				if (Qk == "")
+					fout<<"     ";
+				else
+				{
+					if (Qk.size() == 5)
+						fout<<Qk;
+					else if (Qk.size() == 4)
+						fout<<Qk<<" ";
+				}
+				fout<< "  | " ;
+				if (Qj == "")
+				{
+					stringstream ss (stringstream::in | stringstream::out);
+					ss << Vj;
+					int curIntPartVj, curFractPartVj;
+					if (ss.str().find('.') != string::npos)
+					{
+						curIntPartVj = ss.str().find('.');
+						curFractPartVj = ss.str().size()-ss.str().find('.')-1;
+					}
+					else
+					{
+						curIntPartVj = ss.str().size();
+						curFractPartVj = -1;
+					}
+				
+					for (int j=0; j<maxIntPartVj-curIntPartVj; j++)
+						fout<<" ";
+					fout << Vj;
+					for (int j=0; j<maxVjCol-maxIntPartVj-curFractPartVj-1; j++)
+						fout<<" ";
+				}
+				else
+				{
+					for (int j=0; j<maxVjCol; j++) fout << " ";
+				}
+				fout << " | ";
+
+				if (Qk == "")
+				{
+					stringstream ss (stringstream::in | stringstream::out);
+					ss << Vk;
+					int curIntPartVk, curFractPartVk;
+					if (ss.str().find('.') != string::npos)
+					{
+						curIntPartVk = ss.str().find('.');
+						curFractPartVk = ss.str().size()-ss.str().find('.')-1;
+					}
+					else
+					{
+						curIntPartVk = ss.str().size();
+						curFractPartVk = -1;
+					}
+				
+					for (int j=0; j<maxIntPartVj-curIntPartVk; j++)
+					fout<<" ";
+					fout << Vk;
+					for (int j=0; j<maxVjCol-maxIntPartVj-curFractPartVk-1; j++)
+						fout<<" ";
+				}
+				else
+					for (int j=0; j<maxVjCol; j++) fout << " ";
+
+				fout<<" | "<<cnt<<endl;
+			}
+			else
+			{
+				fout << "------ | ------- | ------- | ------- | ";
+				for (int i=0; i<maxVjCol; i++) fout<<"-";
+				fout<<" | ";
+				for (int i=0; i<maxVjCol; i++) fout<<"-";
+				fout<<" | ";
+				if (cnt != -1)
+					fout<<cnt;
+				fout << endl;
+			}
 		}
 	}
 
@@ -903,46 +1008,91 @@ public: bool isEmpty()
 		else return false;
 	}
 
-public: void print(int i, int maxThirdCol, int maxIntPart, int maxFractPart, int curIntPart, int curFractPart, int cnt)
+public: void print(int i, int maxThirdCol, int maxIntPart, int maxFractPart, int curIntPart, int curFractPart, int cnt, bool toFile=false)
 	{
-		if (!(this->isEmpty())) { 
-			cout << "ROB" << i;
-			if (i < 100) cout << " ";
-			if (i < 10) cout << " ";
-			cout << " | " << Type << "\t | " << Dst << "\t | ";
-			if (maxIntPart + maxFractPart + 1 < 5)
-			{
-				if (curFractPart == -1)
+		if (!toFile)
+		{
+			if (!(this->isEmpty())) { 
+				cout << "ROB" << i;
+				if (i < 100) cout << " ";
+				if (i < 10) cout << " ";
+				cout << " | " << Type << "\t | " << Dst << "\t | ";
+				if (maxIntPart + maxFractPart + 1 < 5)
 				{
-					for (int j=0; j<(maxThirdCol-maxIntPart)/2; j++)
-						cout<<" ";
-					for (int j=curIntPart; j<maxIntPart; j++)
-						cout<<" ";
+					if (curFractPart == -1)
+					{
+						for (int j=0; j<(maxThirdCol-maxIntPart)/2; j++)
+							cout<<" ";
+						for (int j=curIntPart; j<maxIntPart; j++)
+							cout<<" ";
+					}
+					else
+					{
+						for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart-1)/2; j++)
+							cout<<" ";
+						for (int j=curIntPart+curFractPart; j<maxIntPart+maxFractPart; j++)
+							cout<<" ";
+					}
+					cout << Val;
+					if (curFractPart == -1)
+						for (int j=0; j<(maxThirdCol-maxIntPart+1)/2; j++)
+							cout<<" ";
+					else
+						for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart)/2; j++)
+							cout<<" ";
 				}
 				else
 				{
-					for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart-1)/2; j++)
+					for (int j=0; j<maxIntPart-curIntPart; j++)
 						cout<<" ";
-					for (int j=curIntPart+curFractPart; j<maxIntPart+maxFractPart; j++)
+					cout << Val;
+					for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1; j++)
 						cout<<" ";
 				}
-				cout << Val;
-				if (curFractPart == -1)
-					for (int j=0; j<(maxThirdCol-maxIntPart+1)/2; j++)
-						cout<<" ";
+				cout << " |   " << Ready << "   | " <<cnt << endl; 
+			}
+		}
+		else
+		{
+			if (!(this->isEmpty())) { 
+				fout << "ROB" << i;
+				if (i < 100) fout << " ";
+				if (i < 10) fout << " ";
+				fout << " | " << Type << "\t | " << Dst << "\t | ";
+				if (maxIntPart + maxFractPart + 1 < 5)
+				{
+					if (curFractPart == -1)
+					{
+						for (int j=0; j<(maxThirdCol-maxIntPart)/2; j++)
+							fout<<" ";
+						for (int j=curIntPart; j<maxIntPart; j++)
+							fout<<" ";
+					}
+					else
+					{
+						for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart-1)/2; j++)
+							fout<<" ";
+						for (int j=curIntPart+curFractPart; j<maxIntPart+maxFractPart; j++)
+							fout<<" ";
+					}
+					fout << Val;
+					if (curFractPart == -1)
+						for (int j=0; j<(maxThirdCol-maxIntPart+1)/2; j++)
+							fout<<" ";
+					else
+						for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart)/2; j++)
+							fout<<" ";
+				}
 				else
-					for (int j=0; j<(maxThirdCol-maxIntPart-maxFractPart)/2; j++)
-						cout<<" ";
+				{
+					for (int j=0; j<maxIntPart-curIntPart; j++)
+						fout<<" ";
+					fout << Val;
+					for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1; j++)
+						fout<<" ";
+				}
+				fout << " |   " << Ready << "   | " <<cnt << endl; 
 			}
-			else
-			{
-				for (int j=0; j<maxIntPart-curIntPart; j++)
-					cout<<" ";
-				cout << Val;
-				for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1; j++)
-					cout<<" ";
-			}
-			cout << " |   " << Ready << "   | " <<cnt << endl; 
 		}
 	}
 
@@ -1368,6 +1518,18 @@ int main()
 
 	while ((FT.size() == 0) || (FT.at(FT.size()-1).COMMIT0 == 0) || (misprediction_cnt >= clk))
 	{
+		if (FT.size() > 0)
+		{
+			for (int i=0; i<FT.size(); i++)
+			{
+				TimingTable temp = FT.at(i);
+				if (temp.COMMIT0 == clk || temp.EX0 == clk || temp.EX1 == clk || temp.ISSUE == clk || temp.WB == clk || temp.MEM0 == clk || temp.MEM1 == clk || temp.COMMIT1 == clk)
+				{
+					print_screen_to_file(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
+					break;
+				}
+			}
+		}
 		if (last_op != 'E')
 			print_screen(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		clk++;
@@ -2750,7 +2912,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		maxCodeLength+=4+max_len[0]+max_len[1]+maxLSlength;
 
 	
-
+	cout <<" Total clock cycles = "<<clk<<endl<<endl;
 	cout<<" Timing Table:"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
@@ -3839,10 +4001,6 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		cout<<"\t|____________|______________|_______________|"<<endl;
 	
 
-
-		
-	cout<<endl<<endl<<" Total clock cycles = "<<clk<<endl;
-
 	double ipc = 0;
 	for (int i = FT.size(); i>0; i--)
 	{
@@ -3856,7 +4014,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	if (clk > 0)
 		ipc = ipc/clk;
 	int t = FT.size();
-	cout<<" Average IPC        = ";
+	cout<<endl<<endl<<" Average IPC        = ";
 	printf("%.3f", ipc);
 	cout<<endl<<endl;
 	if (!last_print)
@@ -3941,9 +4099,16 @@ void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation*
 	
 }
 
+bool first_open = true;
 void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB)
 {
-	fout.open(".\\OutputFiles\\"+file_name);
+	if (first_open)
+	{
+		first_open = false;
+		fout.open(".\\OutputFiles\\"+file_name);
+	}
+	else
+		fout.open(".\\OutputFiles\\"+file_name, ios::app);
 	vector<vector<string>> whole_code;						//Entire code as a 2D array
 	for (int j=0; j<FT.size(); j++)
 	{
@@ -3991,7 +4156,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 		maxCodeLength+=4+max_len[0]+max_len[1]+maxLSlength;
 
 	
-
+	fout <<" Total clock cycles = "<<clk<<endl<<endl;
 	fout<<" Timing Table:"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		fout<<" ";
@@ -4251,7 +4416,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 				fout << "RS_IA" << j; 
 				if (j < 10)
 					fout<<" ";
-				fout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj, RS_IntAdder[i].code_cnt);
+				fout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj, RS_IntAdder[i].code_cnt, true);
 			}
 			j++;
 		}
@@ -4282,7 +4447,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 				fout << "RS_FA" << j;
 				if (j < 10)
 					fout<<" ";
-				fout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj, RS_FPAdder[i].code_cnt);
+				fout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj, RS_FPAdder[i].code_cnt, true);
 			}
 			j++;
 		}
@@ -4315,7 +4480,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 				fout << "RS_FM" << j;
 				if (j < 10)
 					fout<<" ";
-				fout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj, RS_FPMultiplier[i].code_cnt);
+				fout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj, RS_FPMultiplier[i].code_cnt, true);
 			}
 			j++;
 		}
@@ -4348,7 +4513,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 				fout << "RS_LS" << j;
 				if (j < 10)
 					fout<<" ";
-				fout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt);
+				fout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt, true);
 			}
 			j++;
 		}*/
@@ -4589,7 +4754,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 				fout<<"|-------|"<<endl;
 				first = false;
 			}
-			ROB[i].print(i, maxThirdCol, maxIntPart, maxFractPart, curIntPart, curFractPart, ROB[i].code_cnt);
+			ROB[i].print(i, maxThirdCol, maxIntPart, maxFractPart, curIntPart, curFractPart, ROB[i].code_cnt, true);
 		}
 	}
 	if (!first)
@@ -5081,9 +5246,6 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 	
 
 
-		
-	fout<<endl<<endl<<" Total clock cycles = "<<clk<<endl;
-
 	double ipc = 0;
 	for (int i = FT.size(); i>0; i--)
 	{
@@ -5097,10 +5259,13 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 	if (clk > 0)
 		ipc = ipc/clk;
 	int t = FT.size();
-	fout<<" Average IPC        = ";
+	fout<<endl<<endl<<" Average IPC        = ";
 	char ipcC[10];
 	sprintf(ipcC, "%.3f", ipc);
 	fout<<ipcC;
 	fout<<endl<<endl;
+	for (int i=0; i<90; i++)
+		fout<<"*";
+	fout<<endl<<endl<<endl<<endl;
 	fout.close();
 }
