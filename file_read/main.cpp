@@ -9,6 +9,8 @@
 
 
 using namespace std;
+ofstream fout;
+string file_name;
 
 int clk = 0;
 int R[32], RAT_R[32], RAT_F[32]; 
@@ -546,72 +548,142 @@ struct TimingTable {										//Create the final IS-EX-MEM-WB-COMMIT table
 	int ISSUE, EX0, EX1, MEM0, MEM1, WB, COMMIT0, COMMIT1;
 
 	TimingTable() { ISSUE = EX0 = EX1 = MEM0 = MEM1 = WB = COMMIT0 = COMMIT1 = 0; }
-public: void print(int cnt)
+public: void print(int cnt, bool toFile = false)
 		{
-			cout<<" ";
-			if (ISSUE < 100) {cout<<" ";}
-			if (ISSUE < 10) {cout<<" ";}
-			cout<<ISSUE<<"  | ";
-
-			if (EX0 < 100) {cout<<" ";}
-			if (EX0 < 10) {cout<<" ";}
-			if (EX0 == 0) {cout<<" ";}
-			else cout<<EX0;
-			if (EX0 > 0) cout<<" -";
-			else cout<<"  ";
-			if (EX1 < 100) {cout<<" ";}
-			if (EX1 < 10) {cout<<" ";}
-			if (EX1 == 0) {cout<<" ";}
-			else cout<<EX1;
-			cout<<" |";
-			
-			if (EX1+1 == WB)
+			if (!toFile)
 			{
-				cout<<"    -   ";
+				cout<<" ";
+				if (ISSUE < 100) {cout<<" ";}
+				if (ISSUE < 10) {cout<<" ";}
+				cout<<ISSUE<<"  | ";
+
+				if (EX0 < 100) {cout<<" ";}
+				if (EX0 < 10) {cout<<" ";}
+				if (EX0 == 0) {cout<<" ";}
+				else cout<<EX0;
+				if (EX0 > 0) cout<<" -";
+				else cout<<"  ";
+				if (EX1 < 100) {cout<<" ";}
+				if (EX1 < 10) {cout<<" ";}
+				if (EX1 == 0) {cout<<" ";}
+				else cout<<EX1;
+				cout<<" |";
+			
+				if (EX1+1 == WB)
+				{
+					cout<<"    -   ";
+				}
+				else
+				{
+					if (MEM0 < 100) {cout<<" ";}
+					if (MEM0 < 10) {cout<<" ";}
+					if (MEM0 == 0) cout<<" ";
+					else cout<<MEM0;
+				
+					if ((MEM0 > 0 && MEM1 > 0) || (MEM0 == 0 && COMMIT0 > 0))
+						cout<<" -";
+					else
+						cout<<"  ";
+					if (MEM1 < 100) {cout<<" ";}
+					if (MEM1 < 10) {cout<<" ";}
+					if (MEM1 == 0) {cout<<" ";}
+					else cout<<MEM1;
+				
+				}
+				cout<<" | ";
+
+				if (WB < 100) {cout<<" ";}
+				if (WB < 10) {cout<<" ";}
+				if (WB == 0) 
+				{
+					if (COMMIT0 > 0)	//Branch or Store Instruction
+						cout<<"-";
+					else
+						cout << " ";
+				}
+				else cout << WB;
+				cout<<"  | ";
+
+				if (COMMIT0 < 100) {cout<<" ";}
+				if (COMMIT0 < 10) {cout<<" ";}
+				if (COMMIT0 == 0) {cout<<" ";}
+				else cout<<COMMIT0;
+				if (COMMIT0 > 0 && COMMIT1 > 0) cout<<" -";
+				else cout<<"  ";
+				if (COMMIT1 < 100) {cout<<" ";}
+				if (COMMIT1 < 10) {cout<<" ";}
+				if (COMMIT1 == 0) {cout<<" ";}
+				else cout<<COMMIT1;
+
+				cout<<" | "<<cnt<<endl;
 			}
 			else
 			{
-				if (MEM0 < 100) {cout<<" ";}
-				if (MEM0 < 10) {cout<<" ";}
-				if (MEM0 == 0) cout<<" ";
-				else cout<<MEM0;
-				
-				if ((MEM0 > 0 && MEM1 > 0) || (MEM0 == 0 && COMMIT0 > 0))
-					cout<<" -";
+				fout<<" ";
+				if (ISSUE < 100) {fout<<" ";}
+				if (ISSUE < 10) {fout<<" ";}
+				fout<<ISSUE<<"  | ";
+
+				if (EX0 < 100) {fout<<" ";}
+				if (EX0 < 10) {fout<<" ";}
+				if (EX0 == 0) {fout<<" ";}
+				else fout<<EX0;
+				if (EX0 > 0) fout<<" -";
+				else fout<<"  ";
+				if (EX1 < 100) {fout<<" ";}
+				if (EX1 < 10) {fout<<" ";}
+				if (EX1 == 0) {fout<<" ";}
+				else fout<<EX1;
+				fout<<" |";
+			
+				if (EX1+1 == WB)
+				{
+					fout<<"    -   ";
+				}
 				else
-					cout<<"  ";
-				if (MEM1 < 100) {cout<<" ";}
-				if (MEM1 < 10) {cout<<" ";}
-				if (MEM1 == 0) {cout<<" ";}
-				else cout<<MEM1;
+				{
+					if (MEM0 < 100) {fout<<" ";}
+					if (MEM0 < 10) {fout<<" ";}
+					if (MEM0 == 0) fout<<" ";
+					else fout<<MEM0;
 				
+					if ((MEM0 > 0 && MEM1 > 0) || (MEM0 == 0 && COMMIT0 > 0))
+						fout<<" -";
+					else
+						fout<<"  ";
+					if (MEM1 < 100) {fout<<" ";}
+					if (MEM1 < 10) {fout<<" ";}
+					if (MEM1 == 0) {fout<<" ";}
+					else fout<<MEM1;
+				
+				}
+				fout<<" | ";
+
+				if (WB < 100) {fout<<" ";}
+				if (WB < 10) {fout<<" ";}
+				if (WB == 0) 
+				{
+					if (COMMIT0 > 0)	//Branch or Store Instruction
+						fout<<"-";
+					else
+						fout << " ";
+				}
+				else fout << WB;
+				fout<<"  | ";
+
+				if (COMMIT0 < 100) {fout<<" ";}
+				if (COMMIT0 < 10) {fout<<" ";}
+				if (COMMIT0 == 0) {fout<<" ";}
+				else fout<<COMMIT0;
+				if (COMMIT0 > 0 && COMMIT1 > 0) fout<<" -";
+				else fout<<"  ";
+				if (COMMIT1 < 100) {fout<<" ";}
+				if (COMMIT1 < 10) {fout<<" ";}
+				if (COMMIT1 == 0) {fout<<" ";}
+				else fout<<COMMIT1;
+
+				fout<<" | "<<cnt<<endl;
 			}
-			cout<<" | ";
-
-			if (WB < 100) {cout<<" ";}
-			if (WB < 10) {cout<<" ";}
-			if (WB == 0) 
-			{
-				if (COMMIT0 > 0)	//Branch or Store Instruction
-					cout<<"-";
-				else
-					cout << " ";
-			}
-			else cout << WB;
-			cout<<"  | ";
-
-			if (COMMIT0 < 100) {cout<<" ";}
-			if (COMMIT0 < 10) {cout<<" ";}
-			if (COMMIT0 == 0) {cout<<" ";}
-			else cout<<COMMIT0;
-			if (COMMIT0 > 0 && COMMIT1 > 0) cout<<" -";
-			else cout<<"  ";
-			if (COMMIT1 < 100) {cout<<" ";}
-			if (COMMIT1 < 10) {cout<<" ";}
-			if (COMMIT1 == 0) {cout<<" ";}
-			else cout<<COMMIT1;
-
-			cout<<" | "<<cnt<<endl;
 		}
 };
 vector<TimingTable> FT;
@@ -1191,7 +1263,6 @@ string SelectFile(char InputFolder[]) {
 	//file_path += token;
 
 	ss << file.name;
-	string file_name;
 	ss >> file_name;
 
 	file_path += file_name;
@@ -1202,6 +1273,7 @@ string SelectFile(char InputFolder[]) {
 char last_op = ' ';
 bool last_print = false;
 void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB);
+void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB);
 
 
 int main() 
@@ -1237,7 +1309,7 @@ int main()
 
 	//Print the initial state before starting the algorithm to confirm that data is parsed correctly
 	cout<<endl<<"File opened: "<<file_path<<endl<<endl;
-	cout<<endl<<"                # of rs    Cycles in Ex    Cycles in Mem    # of FUs"<<endl;
+	cout<<endl<<"                # of RS    Cycles in EX    Cycles in MEM    # of FUs"<<endl;
 	cout<<"Integer Adder\t  "<<Integer_Adder::num_RS<<"\t\t"<<Integer_Adder::cycles_EX<<"\t\t"<<Integer_Adder::cycles_MEM<<"\t\t"<<Integer_Adder::num_FU<<endl;
 	cout<<"FP Adder\t  "<<FP_Adder::num_RS<<"\t\t"<<FP_Adder::cycles_EX<<"\t\t"<<FP_Adder::cycles_MEM<<"\t\t"<<FP_Adder::num_FU<<endl;
 	cout<<"FP Multiplier\t  "<<FP_Multiplier::num_RS<<"\t\t"<<FP_Multiplier::cycles_EX<<"\t\t"<<FP_Multiplier::cycles_MEM<<"\t\t"<<FP_Multiplier::num_FU<<endl;
@@ -3790,7 +3862,10 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 	if (!last_print)
 		cout<<"Press any key to continue (e to jump to output)...";
 	else
+	{
+		print_screen_to_file(RS_IntAdder, RS_FPAdder, RS_FPMultiplier, RS_LSU, ROB);
 		cout<<"Press any key to continue...";
+	}
 	last_op = _getch();
 	last_op = toupper(last_op);
 }
@@ -3822,7 +3897,7 @@ void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation*
 		if (!RS_FPAdder[i].isEmpty())
 			fp_adder_RS_cnt++;
 	}
-
+	
 	for (int i=0; i<FP_Multiplier::num_FU*FP_Multiplier::num_RS; i++)
 	{
 		if (!RS_FPMultiplier[i].isEmpty() && RS_FPMultiplier[i].code_cnt >= backup.code_cnt)
@@ -3864,4 +3939,1168 @@ void RestoreBackup(BackupRAT backup, unsigned int &code_cnt, ReservationStation*
 		code_cnt--;
 	}
 	
+}
+
+void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdder, ReservationStation* RS_FPMultiplier, ReservationStation* RS_LSU, ReOrderBuffer* ROB)
+{
+	fout.open(".\\OutputFiles\\"+file_name);
+	vector<vector<string>> whole_code;						//Entire code as a 2D array
+	for (int j=0; j<FT.size(); j++)
+	{
+		vector<string> string_list = BreakLine(code.at(j));		//This will contain the line in parts
+		whole_code.push_back(string_list);
+	}
+
+	int max_len[4] = {0, 0, 0, 0};						//Maximum lengths of the 4 words in each line
+	vector<int> char_cnt, ls_size_cnt;
+	for (int j=0; j<whole_code.size(); j++)
+	{
+		for (int i=0; i<4; i++)
+		{
+			if (whole_code.at(j).size() >= i+1)
+			{
+				
+				if (i == 2 && whole_code.at(j).size() == 3)
+				{
+					ls_size_cnt.push_back(whole_code.at(j).at(i).size());
+				}
+				if (whole_code.at(j).at(i).size() > max_len[i])
+				{
+					if (i == 2 && whole_code.at(j).size() == 3)
+						{}
+					else
+						max_len[i] = whole_code.at(j).at(i).size();
+				}
+			}
+		}
+	}
+
+
+
+	int maxLSlength = 0;
+	for (int i=0; i<ls_size_cnt.size(); i++)
+	{
+		if (ls_size_cnt.at(i) > maxLSlength)
+			maxLSlength = ls_size_cnt.at(i);
+	}
+
+	int maxCodeLength = 0;
+	if (max_len[2]+max_len[3]+2 > maxLSlength)
+		maxCodeLength+=6+max_len[0]+max_len[1]+max_len[2]+max_len[3];
+	else
+		maxCodeLength+=4+max_len[0]+max_len[1]+maxLSlength;
+
+	
+
+	fout<<" Timing Table:"<<endl;
+	for (int i=0; i<maxCodeLength; i++)
+		fout<<" ";
+	fout<<" ______________________________________________"<<endl;
+	for (int i=0; i<maxCodeLength; i++)
+		fout<<" ";
+	fout<<"| ISSUE |    EX    |   MEM   |  WB  |  COMMIT  |"<<endl;
+	for (int i=0; i<maxCodeLength; i++)
+		fout<<" ";
+	fout<<"|-------|----------|---------|------|----------|"<<endl;
+	for (int i=0; i<FT.size(); i++)
+	{
+		fout<<whole_code.at(i).at(0);
+		for (int j=whole_code.at(i).at(0).size(); j<=max_len[0]; j++) {fout<<" ";}
+		for (int j=whole_code.at(i).at(1).size(); j<max_len[1]; j++) {fout<<" ";}
+		fout<<whole_code.at(i).at(1);
+		fout<<", ";
+		if (whole_code.at(i).size() > 3)
+		{
+			for (int j=whole_code.at(i).at(2).size(); j<max_len[2]; j++) {fout<<" ";}
+			fout<<whole_code.at(i).at(2);
+			fout<<", ";
+			for (int j=whole_code.at(i).at(3).size(); j<max_len[3]; j++) {fout<<" ";}
+			fout<<whole_code.at(i).at(3);
+			for (int j=max_len[2]+max_len[3]+2; j<maxLSlength; j++) {fout<<" ";}
+		}
+		else if (whole_code.at(i).size() == 3)
+		{
+			int temp = maxLSlength;
+			if (max_len[2]+max_len[3]+2 > maxLSlength)
+				temp = max_len[2]+max_len[3]+2;
+			for (int j=whole_code.at(i).at(2).size(); j<temp; j++)
+				fout<<" ";
+			fout<<whole_code.at(i).at(2);
+		}
+		
+		fout<<" | ";
+		FT.at(i).print(i, true);
+	}
+	for (int i=0; i<maxCodeLength; i++)
+		fout<<" ";
+	fout<<"|_______|__________|_________|______|__________|"<<endl;
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	int maxIntPartVj = 0;
+	int maxFractPartVj = 0;
+	int maxIntPartVk = 0;
+	int maxFractPartVk = 0;
+	int maxVjCol = 0;
+	
+	int totalRScnt = int_adder_RS_cnt + fp_adder_RS_cnt + fp_mul_RS_cnt;// + ls_RS_cnt;
+	if (totalRScnt != 0)
+	{
+		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++) 
+		{
+			if (!RS_IntAdder[i].isEmpty())
+			{
+				stringstream ss (stringstream::in | stringstream::out);
+				ss << RS_IntAdder[i].Vj;
+				if (ss.str().find('.') != string::npos)
+				{
+					if (ss.str().find('.') > maxIntPartVj)
+						maxIntPartVj = ss.str().find('.');
+					if (ss.str().size()-ss.str().find('.')-1 > maxFractPartVj)
+						maxFractPartVj = ss.str().size()-ss.str().find('.')-1;
+				}
+				else
+				{
+					if (ss.str().size() > maxIntPartVj)
+						maxIntPartVj = ss.str().size();
+				}
+
+				stringstream ss1 (stringstream::in | stringstream::out);
+				ss1 << RS_IntAdder[i].Vk;
+				if (ss1.str().find('.') != string::npos)
+				{
+					if (ss1.str().find('.') > maxIntPartVk)
+						maxIntPartVk = ss1.str().find('.');
+					if (ss1.str().size()-ss1.str().find('.')-1 > maxFractPartVk)
+						maxFractPartVk = ss1.str().size()-ss1.str().find('.')-1;
+				}
+				else
+				{
+					if (ss1.str().size() > maxIntPartVk)
+						maxIntPartVk = ss1.str().size();
+				}
+			}
+		}
+
+		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
+		{
+			if (!RS_FPAdder[i].isEmpty())
+			{
+				stringstream ss (stringstream::in | stringstream::out);
+				ss << RS_FPAdder[i].Vj;
+				if (ss.str().find('.') != string::npos)
+				{
+					if (ss.str().find('.') > maxIntPartVj)
+						maxIntPartVj = ss.str().find('.');
+					if (ss.str().size()-ss.str().find('.')-1 > maxFractPartVj)
+						maxFractPartVj = ss.str().size()-ss.str().find('.')-1;
+				}
+				else
+				{
+					if (ss.str().size() > maxIntPartVj)
+						maxIntPartVj = ss.str().size();
+				}
+
+				stringstream ss1 (stringstream::in | stringstream::out);
+				ss1 << RS_FPAdder[i].Vk;
+				if (ss1.str().find('.') != string::npos)
+				{
+					if (ss1.str().find('.') > maxIntPartVk)
+						maxIntPartVk = ss1.str().find('.');
+					if (ss1.str().size()-ss1.str().find('.')-1 > maxFractPartVk)
+						maxFractPartVk = ss1.str().size()-ss1.str().find('.')-1;
+				}
+				else
+				{
+					if (ss1.str().size() > maxIntPartVk)
+						maxIntPartVk = ss1.str().size();
+				}
+			}
+		}
+
+		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
+		{
+			if (!RS_FPMultiplier[i].isEmpty())
+			{
+				stringstream ss (stringstream::in | stringstream::out);
+				ss << RS_FPMultiplier[i].Vj;
+				if (ss.str().find('.') != string::npos)
+				{
+					if (ss.str().find('.') > maxIntPartVj)
+						maxIntPartVj = ss.str().find('.');
+					if (ss.str().size()-ss.str().find('.')-1 > maxFractPartVj)
+						maxFractPartVj = ss.str().size()-ss.str().find('.')-1;
+				}
+				else
+				{
+					if (ss.str().size() > maxIntPartVj)
+						maxIntPartVj = ss.str().size();
+				}
+
+				stringstream ss1 (stringstream::in | stringstream::out);
+				ss1 << RS_FPMultiplier[i].Vk;
+				if (ss1.str().find('.') != string::npos)
+				{
+					if (ss1.str().find('.') > maxIntPartVk)
+						maxIntPartVk = ss1.str().find('.');
+					if (ss1.str().size()-ss1.str().find('.')-1 > maxFractPartVk)
+						maxFractPartVk = ss1.str().size()-ss1.str().find('.')-1;
+				}
+				else
+				{
+					if (ss1.str().size() > maxIntPartVk)
+						maxIntPartVk = ss1.str().size();
+				}
+			}
+		}
+
+		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		{
+			if (!RS_LSU[i].isEmpty())
+			{
+				stringstream ss (stringstream::in | stringstream::out);
+				ss << RS_LSU[i].Vj;
+				if (ss.str().find('.') != string::npos)
+				{
+					if (ss.str().find('.') > maxIntPartVj)
+						maxIntPartVj = ss.str().find('.');
+					if (ss.str().size()-ss.str().find('.')-1 > maxFractPartVj)
+						maxFractPartVj = ss.str().size()-ss.str().find('.')-1;
+				}
+				else
+				{
+					if (ss.str().size() > maxIntPartVj)
+						maxIntPartVj = ss.str().size();
+				}
+
+				stringstream ss1 (stringstream::in | stringstream::out);
+				ss1 << RS_LSU[i].Vk;
+				if (ss1.str().find('.') != string::npos)
+				{
+					if (ss1.str().find('.') > maxIntPartVk)
+						maxIntPartVk = ss1.str().find('.');
+					if (ss1.str().size()-ss1.str().find('.')-1 > maxFractPartVk)
+						maxFractPartVk = ss1.str().size()-ss1.str().find('.')-1;
+				}
+				else
+				{
+					if (ss1.str().size() > maxIntPartVk)
+						maxIntPartVk = ss1.str().size();
+				}
+			}
+		}*/
+	}
+
+
+	if (maxIntPartVj < maxIntPartVk)
+		maxIntPartVj = maxIntPartVk;
+	if (maxFractPartVj < maxFractPartVk)
+		maxFractPartVj = maxFractPartVk;
+	maxVjCol = maxIntPartVj;
+	if (maxFractPartVj > 0)
+		maxVjCol+= maxFractPartVj+1;
+	if (maxVjCol < 2)
+		maxVjCol = 2;
+
+
+
+
+	if (totalRScnt != 0)
+	{
+		int j = 0;
+		fout << endl << endl << " Reservation Stations:" << endl;
+		fout<<"         _______________________________________";
+		for (int i=0; i<2*maxVjCol+5; i++) fout<<"_";
+		fout<<endl;
+		fout<<"        |   Op   | Dst_Tag |   Qj    |   Qk    | ";
+
+		for (int i=0; i<(maxVjCol-2)/2; i++) fout<<" ";
+		fout<<"Vj";
+		for (int i=0; i<(maxVjCol-2)/2; i++) fout<<" ";
+		if ((maxVjCol-2)%2 != 0)
+			fout<<" ";
+		fout<<" | ";
+
+		for (int i=0; i<(maxVjCol-2)/2; i++) fout<<" ";
+		fout<<"Vk";
+		for (int i=0; i<(maxVjCol-2)/2; i++) fout<<" ";
+		if ((maxVjCol-2)%2 != 0)
+			fout<<" ";
+		fout<<" |"<<endl;
+
+		fout<<"        |--------|---------|---------|---------|";
+		for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+		fout<<"|";
+		for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+		fout<<"|"<<endl;
+
+		int num_RS = 0;
+		int num2_RS = 0;
+		
+		for (int i=0; i<Integer_Adder::num_RS*Integer_Adder::num_FU; i++) 
+		{
+			if (!RS_IntAdder[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				fout << "RS_IA" << j; 
+				if (j < 10)
+					fout<<" ";
+				fout<< " | "; RS_IntAdder[i].print(maxVjCol, maxIntPartVj, RS_IntAdder[i].code_cnt);
+			}
+			j++;
+		}
+
+		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
+		{
+			if (!RS_FPAdder[i].isEmpty() && num2_RS > 0)
+			{
+				num2_RS = 0;
+				fout<<"--------|--------|---------|---------|---------|";
+				for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+				fout<<"|";
+				for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+				fout<<"|----"<<endl;
+				break;
+			}
+		}
+
+
+
+		j=0; num_RS = 0;
+		for (int i=0; i<FP_Adder::num_RS*FP_Adder::num_FU; i++)
+		{
+			if (!RS_FPAdder[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				fout << "RS_FA" << j;
+				if (j < 10)
+					fout<<" ";
+				fout << " | "; RS_FPAdder[i].print(maxVjCol, maxIntPartVj, RS_FPAdder[i].code_cnt);
+			}
+			j++;
+		}
+		
+
+
+		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
+		{
+			if (!RS_FPMultiplier[i].isEmpty() && num2_RS > 0)
+			{
+				num2_RS = 0;
+				fout<<"--------|--------|---------|---------|---------|";
+				for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+				fout<<"|";
+				for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+				fout<<"|----"<<endl;
+				break;
+			}
+		}
+
+
+
+		j=0; num_RS = 0;
+		for (int i=0; i<FP_Multiplier::num_RS*FP_Multiplier::num_FU; i++)
+		{
+			if (!RS_FPMultiplier[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				fout << "RS_FM" << j;
+				if (j < 10)
+					fout<<" ";
+				fout << " | "; RS_FPMultiplier[i].print(maxVjCol, maxIntPartVj, RS_FPMultiplier[i].code_cnt);
+			}
+			j++;
+		}
+
+
+
+		/*for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		{
+			if (!RS_LSU[i].isEmpty() && num2_RS > 0)
+			{
+				num2_RS = 0;
+				fout<<"--------|--------|---------|---------|---------|";
+				for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+				fout<<"|";
+				for (int i=0; i<maxVjCol+2; i++) fout<<"-";
+				fout<<"|----"<<endl;
+				break;
+			}
+		}
+
+
+
+		j=0; num_RS = 0;
+		for (int i=0; i<LS_Unit::num_RS*LS_Unit::num_FU; i++)
+		{
+			if (!RS_LSU[i].isEmpty())
+			{
+				num2_RS++;
+				num_RS++;
+				fout << "RS_LS" << j;
+				if (j < 10)
+					fout<<" ";
+				fout << " | "; RS_LSU[i].print(maxVjCol, maxIntPartVj, RS_LSU[i].code_cnt);
+			}
+			j++;
+		}*/
+
+		fout<<"        |________|_________|_________|_________|_";
+		for (int i=0; i<maxVjCol; i++) fout<<"_";
+		fout<<"_|_";
+		for (int i=0; i<maxVjCol; i++) fout<<"_";
+		fout<<"_|" << endl;
+	}
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+	int maxIntPart = 0;
+	int maxFractPart = 0;
+	int maxROBpart = 0;
+	int maxAddSize = 0;
+	int diff = 0;
+	int maxThirdCol = 0;
+
+	for (int i=0; i<LSQ.size(); i++)
+	{
+		if (LSQ.at(i).code_cnt != -1)
+		{
+			if (LSQ.at(i).address.size() > maxAddSize)
+				maxAddSize = LSQ.at(i).address.size();
+			if (LSQ.at(i).val.find('R') == string::npos)
+			{
+				if (LSQ.at(i).val.find('.') != string::npos)
+				{
+					if (LSQ.at(i).val.find('.') > maxIntPart)
+						maxIntPart = LSQ.at(i).val.size();
+					if (LSQ.at(i).val.size()-LSQ.at(i).val.find('.')-1 > maxFractPart)
+						maxFractPart = LSQ.at(i).val.size()-LSQ.at(i).val.find('.')-1;
+				}
+				else
+				{
+					if (LSQ.at(i).val.size() > maxIntPart)
+						maxIntPart = LSQ.at(i).val.size();
+				}
+			}
+			else if (LSQ.at(i).val.find('R') != string::npos && LSQ.at(i).val.size() > maxROBpart)
+			{ maxROBpart = LSQ.at(i).val.size();}
+		}
+	}
+
+	diff = 0;
+	maxThirdCol = maxIntPart;
+	if (maxFractPart > 0)
+		maxThirdCol+= maxFractPart+1;
+	if (maxROBpart > maxThirdCol)
+		maxThirdCol = maxROBpart;
+	if (maxThirdCol < 5)
+	{
+		diff = (5 - maxThirdCol)/2;
+		maxThirdCol = 5; 
+	}
+	if (maxAddSize < 7)
+		maxAddSize = 7;
+
+
+	bool first = true;
+	for (int j=0; j<LSQ.size(); j++)
+	{
+		if (LSQ.at(j).code_cnt != -1)
+		{
+			int curIntPart, curFractPart, curAddSize;
+			curAddSize = LSQ.at(j).address.size();
+			if (LSQ.at(j).val.find('R') == string::npos)
+			{
+				stringstream ss (stringstream::in | stringstream::out);
+				ss << LSQ.at(j).val;
+				if (ss.str().find('.') != string::npos)
+				{
+					curIntPart = ss.str().find('.');
+					curFractPart = ss.str().size()-ss.str().find('.')-1;
+				}
+				else
+				{
+					curIntPart = ss.str().size();
+					curFractPart = -1;
+				}
+			}
+			else if (LSQ.at(j).val.find('R') != string::npos)
+			{
+				curIntPart = maxIntPart;
+				curFractPart = 0;
+			}
+
+
+			if (first)
+			{
+				fout<<endl<<endl<<" Load/Store Queue"<<endl;
+				fout<<"\t ";
+				for (int i=0; i<maxThirdCol+maxAddSize+16; i++) fout<<"_";
+				fout<<endl;
+				fout<<"\t| Num | Op | ";
+				for (int i=0; i<(maxAddSize-7)/2; i++) fout<<" ";
+				fout<<"Address";
+				for (int i=0; i<(maxAddSize-6)/2; i++) fout<<" ";
+				fout<<" | ";
+				for (int i=0; i<(maxThirdCol-5)/2; i++) fout<<" ";
+				fout<<"Value";
+				for (int i=0; i<(maxThirdCol-4)/2; i++) fout<<" ";
+				fout<< " |"<<endl;
+				fout<<"\t|-----|----|---------|";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"-";
+				fout<<"|"<<endl;
+				first = false;
+			}
+			fout<<"\t| ";
+			if (j < 100) fout<<" ";
+			if (j < 10) fout<<" ";
+			fout<<j<<" | ";
+			fout<<LSQ.at(j).op<<"  | ";
+
+			if (LSQ.at(j).address.find('+') == string::npos)
+			{
+				for (int i=0; i<((maxAddSize-curAddSize)/2); i++) fout<<" ";
+				if (atoi(LSQ.at(j).address.c_str()) < 100) fout<<" ";
+				if (atoi(LSQ.at(j).address.c_str()) < 10) fout<<" ";
+				fout<<LSQ.at(j).address;
+				for (int i=0; i<(maxAddSize-curAddSize)/2; i++) fout<<" ";
+				fout<<" | ";
+			}
+			else
+			{
+				fout<<LSQ.at(j).address;
+				for (int i=0; i<maxAddSize-curAddSize; i++) fout<<" ";
+				fout<<" | ";
+			}
+
+			for (int j=0; j<maxIntPart-curIntPart+diff; j++)
+				fout<<" ";
+			fout << LSQ.at(j).val;
+			if (LSQ.at(j).val.find('R') == string::npos)
+				for (int k=0; k<maxThirdCol-maxIntPart-curFractPart-1-diff; k++)
+					fout<<" ";
+			else if (LSQ.at(j).val.find('R') != string::npos)
+				for (int k=0; k<maxThirdCol-LSQ.at(j).val.size()-diff; k++)
+					fout<<" ";
+			fout << " | " << LSQ.at(j).code_cnt << endl;
+		}
+	}
+	if (!first)
+	{	
+		fout<<"\t|_____|____|_";
+		for (int i=0; i<maxAddSize; i++) fout<<"_";
+		fout<<"_|_";
+		for (int i=0; i<maxThirdCol ; i++) fout<<"_";
+		fout<<"_|"<<endl;
+	}
+
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+	maxIntPart = 0;
+	maxFractPart = 0;
+
+	for (int i=0; i<ROB_entries; i++)
+	{
+		if (!ROB[i].isEmpty())
+		{
+			stringstream ss (stringstream::in | stringstream::out);
+			ss << ROB[i].Val;
+			if (ss.str().find('.') != string::npos)
+			{
+				if (ss.str().find('.') > maxIntPart)
+					maxIntPart = ss.str().size();
+				if (ss.str().size()-ss.str().find('.')-1 > maxFractPart)
+					maxFractPart = ss.str().size()-ss.str().find('.')-1;
+			}
+			else
+			{
+				if (ss.str().size() > maxIntPart)
+					maxIntPart = ss.str().size();
+			}
+		}
+	}
+	maxThirdCol = maxIntPart;
+	if (maxFractPart > 0)
+		maxThirdCol+= maxFractPart+1;
+	if (maxThirdCol < 6)
+		maxThirdCol = 6;
+
+
+
+	first = true;
+	for (int i=0; i<ROB_entries; i++)
+	{
+		if (!ROB[i].isEmpty())
+		{
+			stringstream ss (stringstream::in | stringstream::out);
+			ss << ROB[i].Val;
+			int curIntPart, curFractPart;
+			if (ss.str().find('.') != string::npos)
+			{
+				curIntPart = ss.str().find('.');
+				curFractPart = ss.str().size()-ss.str().find('.')-1;
+			}
+			else
+			{
+				curIntPart = ss.str().size();
+				curFractPart = -1;
+			}
+
+			if (first)
+			{
+				fout << endl << endl << " Re-Order Buffer:" << endl;
+				fout<<"        __________________";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+				fout<<"________"<<endl;
+				fout<<"       |  Type   | Dest  | ";
+				for (int i=0; i<(maxThirdCol-6)/2; i++) fout<<" ";
+				fout<<"Result";
+				for (int i=0; i<(maxThirdCol-6)/2; i++) fout<<" ";
+				if ((maxThirdCol-6)%2 != 0)
+					fout<<" ";
+				fout<<" | Ready |"<<endl;
+				fout<<"       |---------|-------|";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"-";
+				fout<<"|-------|"<<endl;
+				first = false;
+			}
+			ROB[i].print(i, maxThirdCol, maxIntPart, maxFractPart, curIntPart, curFractPart, ROB[i].code_cnt);
+		}
+	}
+	if (!first)
+	{
+		fout<<"       |_________|_______|";
+		for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+		fout<<"|_______|";
+	}
+	fout<<endl<<endl<<endl;
+
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+	maxIntPart = 0;
+	maxFractPart = 0;
+	for (int i=0; i<32; i++)
+	{
+		if ((R[i] != 0) || RAT_R[i] != -1)
+		{
+			stringstream ss (stringstream::in | stringstream::out);
+			ss << R[i];
+			if (ss.str().size() > maxIntPart)
+				maxIntPart = ss.str().size();
+		}
+	}
+
+
+	for (int i=0; i<32; i++)
+	{
+		if ((F[i] != 0) || RAT_F[i] != -1)
+		{
+			stringstream ss (stringstream::in | stringstream::out);
+			ss << F[i];
+			if (ss.str().find('.') != string::npos)
+			{
+				if (ss.str().find('.') > maxIntPart)
+					maxIntPart = ss.str().size();
+				if (ss.str().size()-ss.str().find('.')-1 > maxFractPart)
+					maxFractPart = ss.str().size()-ss.str().find('.')-1;
+			}
+			else
+			{
+				if (ss.str().size() > maxIntPart)
+					maxIntPart = ss.str().size();
+			}
+		}
+	}
+	maxThirdCol = maxIntPart;
+	if (maxFractPart > 0)
+		maxThirdCol+= maxFractPart+1;
+	if (maxThirdCol < 3)
+		maxThirdCol = 3;
+
+
+	fout<<" Non-zero Registers and RAT files:"<<endl<<endl;
+	fout<<"              Integer Registers:\t\tFP Registers:"<<endl;
+	first = true;
+	bool Rdone = false;
+	bool Fdone = false;
+	for (int i=0, ii=0; (i<32 || ii<32); i++, ii++)
+	{
+		if (((i<32) && (R[i] != 0 || RAT_R[i] != -1)) || ((ii<32) && (F[ii] != 0 || RAT_F[ii] != -1)))
+		{
+			if (first)
+			{
+				fout<<"\t _________________";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+
+				fout<<"          _________________";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+
+
+				fout<<endl<<"\t|  RAT  |  R[i]  | ";
+				for (int i=0; i<(maxThirdCol-3)/2; i++) fout<<" ";
+				fout<<"ARF";
+				for (int i=0; i<(maxThirdCol-3)/2; i++) fout<<" ";
+				if ((maxThirdCol-3)%2 != 0)
+					fout<<" ";
+				fout<<" |";
+
+				fout<<"        |  RAT  |  F[i]  | ";
+				for (int i=0; i<(maxThirdCol-3)/2; i++) fout<<" ";
+				fout<<"ARF";
+				for (int i=0; i<(maxThirdCol-3)/2; i++) fout<<" ";
+				if ((maxThirdCol-3)%2 != 0)
+					fout<<" ";
+				fout<<" |";
+
+
+				fout<<endl<<"\t|-------|--------|";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"-";
+				fout<<"|";
+
+				fout<<"        |-------|--------|";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"-";
+				fout<<"|";
+
+
+				fout<<endl;
+				first = false;
+			}
+
+			if ((i<32 && ii<32) && ((R[i] != 0 || RAT_R[i] != -1) && (F[ii] != 0 || RAT_F[ii] != -1)))
+			{
+				stringstream ssR (stringstream::in | stringstream::out);
+				ssR << R[i];
+				int curIntPartR = ssR.str().size();
+
+				stringstream ssF (stringstream::in | stringstream::out);
+				ssF << F[ii];
+				int curIntPartF, curFractPartF;
+
+				if (ssF.str().find('.') != string::npos)
+				{
+					curIntPartF = ssF.str().find('.');
+					curFractPartF = ssF.str().size()-ssF.str().find('.')-1;
+				}
+				else
+				{
+					curIntPartF = ssF.str().size();
+					curFractPartF = -1;
+				}
+
+				
+				if (RAT_R[i] != -1)
+				{
+					fout << "\t| ROB" << RAT_R[i];
+					if (RAT_R[i] < 10) fout<<" ";
+				}
+				else
+					fout << "\t|      ";
+				fout << " |  R[";
+				if (i<10) fout<<"0";
+				fout<< i << "] | ";
+				for (int j=0; j<maxIntPart-curIntPartR; j++)
+					fout<<" ";
+				fout << R[i];
+				for (int j=0; j<maxThirdCol-maxIntPart; j++)
+					fout<<" ";
+				fout << " |" << "        ";
+
+				if (RAT_F[ii] != -1)
+				{
+					fout << "| ROB" << RAT_F[ii];
+					if (RAT_F[ii] < 10)
+						fout<<" ";
+				}
+				else
+					fout << "|      ";
+				fout << " |  F[";
+				if (ii<10)
+					fout<<"0";
+				fout<< ii << "] | ";
+				for (int j=0; j<maxIntPart-curIntPartF; j++)
+					fout<<" ";
+				fout << F[ii];
+				for (int j=0; j<maxThirdCol-maxIntPart-curFractPartF-1; j++)
+					fout<<" ";
+				fout << " |" << endl;
+			}
+
+			else if (i<32 && (R[i] != 0 || RAT_R[i] != -1))
+			{
+				stringstream ssR (stringstream::in | stringstream::out);
+				ssR << R[i];
+				int curIntPartR = ssR.str().size();
+
+				if (RAT_R[i] != -1)
+				{
+					fout << "\t| ROB" << RAT_R[i];
+					if (RAT_R[i] < 10) fout<<" ";
+				}
+				else
+					fout << "\t|      ";
+				fout << " |  R[";
+				if (i<10) fout<<"0";
+				fout<< i << "] | ";
+				for (int j=0; j<maxIntPart-curIntPartR; j++)
+					fout<<" ";
+				fout << R[i];
+				for (int j=0; j<maxThirdCol-maxIntPart; j++)
+					fout<<" ";
+				fout << " |" << "        ";
+
+				while (ii < 32 && F[ii] == 0) { ii++; }
+				if (ii < 32) {
+					stringstream ssF (stringstream::in | stringstream::out);
+					ssF << F[ii];
+					int curIntPartF, curFractPartF;
+
+					if (ssF.str().find('.') != string::npos)
+					{
+						curIntPartF = ssF.str().find('.');
+						curFractPartF = ssF.str().size()-ssF.str().find('.')-1;
+					}
+					else
+					{
+						curIntPartF = ssF.str().size();
+						curFractPartF = -1;
+					}
+
+					if (RAT_F[ii] != -1)
+					{
+						fout << "| ROB" << RAT_F[ii];
+						if (RAT_F[ii] < 10)
+							fout<<" ";
+					}
+					else
+						fout << "|      ";
+					fout << " |  F[";
+					if (ii<10)
+						fout<<"0";
+					fout<< ii << "] | ";
+					for (int j=0; j<maxIntPart-curIntPartF; j++)
+						fout<<" ";
+					fout << F[ii];
+					for (int j=0; j<maxThirdCol-maxIntPart-curFractPartF-1; j++)
+						fout<<" ";
+					fout << " |" << endl;
+				}
+
+				else if (ii >= 32 && !Fdone) {
+					Fdone = true;
+					fout<<"|_______|________|";
+					for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+					fout<<"|"<<endl;
+				}
+
+				else
+					fout << endl;
+			}
+
+			else if (ii<32 && (F[ii] != 0 || RAT_F[ii] != -1))
+			{
+				while (i < 32 && R[i] == 0) { i++; }
+				if (i < 32) {
+					stringstream ssR (stringstream::in | stringstream::out);
+					ssR << R[i];
+					int curIntPartR = ssR.str().size();
+
+					if (RAT_R[i] != -1)
+					{
+						fout << "\t| ROB" << RAT_R[i];
+						if (RAT_R[i] < 10) fout<<" ";
+					}
+					else
+						fout << "\t|      ";
+					fout << " |  R[";
+					if (i<10) fout<<"0";
+					fout<< i << "] | ";
+					for (int j=0; j<maxIntPart-curIntPartR; j++)
+						fout<<" ";
+					fout << R[i];
+					for (int j=0; j<maxThirdCol-maxIntPart; j++)
+						fout<<" ";
+					fout << " |        ";
+				}
+
+				else if (i >= 32 && !Rdone) {
+					Rdone = true;
+					fout<<"\t|_______|________|";
+					for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+					fout<<"|        ";
+				}
+
+				else {
+					fout << "\t                   ";
+					for (int j=0; j<maxThirdCol; j++)	fout<<" ";
+					fout << "          ";
+				}
+
+
+				stringstream ssF (stringstream::in | stringstream::out);
+				ssF << F[ii];
+				int curIntPartF, curFractPartF;
+
+				if (ssF.str().find('.') != string::npos)
+				{
+					curIntPartF = ssF.str().find('.');
+					curFractPartF = ssF.str().size()-ssF.str().find('.')-1;
+				}
+				else
+				{
+					curIntPartF = ssF.str().size();
+					curFractPartF = -1;
+				}
+
+				if (RAT_F[ii] != -1)
+				{
+					fout << "| ROB" << RAT_F[ii];
+					if (RAT_F[ii] < 10)
+						fout<<" ";
+				}
+				else
+					fout << "|      ";
+				fout << " |  F[";
+				if (ii<10)
+					fout<<"0";
+				fout<< ii << "] | ";
+				for (int j=0; j<maxIntPart-curIntPartF; j++)
+					fout<<" ";
+				fout << F[ii];
+				for (int j=0; j<maxThirdCol-maxIntPart-curFractPartF-1; j++)
+					fout<<" ";
+				fout << " |" << endl;
+			}
+		}
+	}
+
+	if (!Rdone && !Fdone) {
+		fout<<"\t|_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+		fout<<"|";
+
+		fout<<"        |_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+		fout<<"|"<<endl;
+	}
+
+	else if (!Rdone) {
+		Rdone = true;
+		fout<<"\t|_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+		fout<<"|"<<endl;
+	}
+
+	else if (!Fdone) {
+		Fdone = true;
+		fout<<"\t";
+		for (int i=0; i<maxThirdCol+21; i++) fout<<" ";
+
+		fout<<"        |_______|________|";
+		for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+		fout<<"|"<<endl;
+	}
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+	maxIntPart = 0;
+	maxFractPart = 0;
+
+    for (int i=0; i<256; i++)
+	{
+		if (Mem[i] != 0)
+		{
+			stringstream ss (stringstream::in | stringstream::out);
+			ss << Mem[i];
+			if (ss.str().find('.') != string::npos)
+			{
+				if (ss.str().find('.') > maxIntPart)
+					maxIntPart = ss.str().size();
+				if (ss.str().size()-ss.str().find('.')-1 > maxFractPart)
+					maxFractPart = ss.str().size()-ss.str().find('.')-1;
+			}
+			else
+			{
+				if (ss.str().size() > maxIntPart)
+					maxIntPart = ss.str().size();
+			}
+		}
+	}
+
+	diff = 0;
+	maxThirdCol = maxIntPart;
+	if (maxFractPart > 0)
+		maxThirdCol+= maxFractPart+1;
+	if (maxThirdCol < 5)
+	{
+		diff = (5 - maxThirdCol)/2;
+		maxThirdCol = 5; 
+	}
+
+
+	first = true;
+	for (int i=0; i<256; i++)
+	{
+		if (Mem[i] != 0.0)
+		{
+			stringstream ss (stringstream::in | stringstream::out);
+			ss << Mem[i];
+			int curIntPart, curFractPart;
+			if (ss.str().find('.') != string::npos)
+			{
+				curIntPart = ss.str().find('.');
+				curFractPart = ss.str().size()-ss.str().find('.')-1;
+			}
+			else
+			{
+				curIntPart = ss.str().size();
+				curFractPart = -1;
+			}
+
+			if (first)
+			{
+				fout<<endl<<endl<<" Non-zero Memory Locations:"<<endl;
+				fout<<"\t ___________";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+				fout<<endl<<"\t|  Mem[i]  | ";
+				for (int i=0; i<(maxThirdCol-5)/2; i++) fout<<" ";
+				fout<<"Value";
+				for (int i=0; i<(maxThirdCol-5)/2; i++) fout<<" ";
+				if ((maxThirdCol-5)%2 != 0)
+					fout<<" ";
+				fout<<" |";
+				fout<<endl<<"\t|----------|";
+				for (int i=0; i<maxThirdCol+2; i++) fout<<"-";
+				fout<<"|"<<endl;
+				first = false;
+			}
+			fout<<"\t| Mem[";
+			if (i < 100) fout <<"0";
+			if (i < 10) fout <<"0";
+			fout<<i<<"] | ";
+			for (int j=0; j<maxIntPart-curIntPart+diff; j++)
+				fout<<" ";
+			fout << Mem[i];
+			for (int j=0; j<maxThirdCol-maxIntPart-curFractPart-1-diff; j++)
+				fout<<" ";
+			fout << " |" << endl;
+		}
+	}
+	if (!first)
+	{
+		fout<<"\t|__________|";
+		if (maxThirdCol < 5)
+			fout<<"_______";
+		else
+			for (int i=0; i<maxThirdCol+2; i++) fout<<"_";
+		fout<<"|"<<endl;
+	}
+	
+
+
+
+
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+	first = true;
+	for (int i=0; i<8; i++)
+	{
+		if (BTB[i].cur_PC != -1)
+		{
+			if (first)
+			{
+				fout<<endl<<endl<<" Branch Target Buffer"<<endl;
+				fout<<"\t ___________________________________________"<<endl;
+				fout<<"\t| Current PC | Predicted PC | Branch Taken? |"<<endl;
+				fout<<"\t|------------|--------------|---------------|"<<endl;
+				first = false;
+			}
+			fout<<"\t|     ";
+			if (BTB[i].cur_PC < 100) fout << " ";
+			if (BTB[i].cur_PC < 10) fout << " ";
+			fout << BTB[i].cur_PC<<"    |     ";
+			if (BTB[i].cur_PC < 100) fout << " ";
+			if (BTB[i].cur_PC < 10) fout << " ";
+			fout << BTB[i].pred_PC<<"      |       ";
+			if (BTB[i].taken == true) fout << "Y";
+			else if (BTB[i].taken == false) fout << "N";
+			fout<<"       |"<<endl;
+		}
+	}
+	if (!first)
+		fout<<"\t|____________|______________|_______________|"<<endl;
+	
+
+
+		
+	fout<<endl<<endl<<" Total clock cycles = "<<clk<<endl;
+
+	double ipc = 0;
+	for (int i = FT.size(); i>0; i--)
+	{
+		if (FT.at(i-1).COMMIT0 > 0)
+		{
+			ipc = i;
+			break;
+		}
+
+	}
+	if (clk > 0)
+		ipc = ipc/clk;
+	int t = FT.size();
+	fout<<" Average IPC        = ";
+	char ipcC[10];
+	sprintf(ipcC, "%.3f", ipc);
+	fout<<ipcC;
+	fout<<endl<<endl;
+	fout.close();
 }
