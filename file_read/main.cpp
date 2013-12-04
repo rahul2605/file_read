@@ -3396,11 +3396,11 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 
 			if (LSQ.at(j).address.find('+') == string::npos)
 			{
-				for (int i=0; i<((maxAddSize-curAddSize)/2); i++) cout<<" ";
-				if (atoi(LSQ.at(j).address.c_str()) < 100) cout<<" ";
-				if (atoi(LSQ.at(j).address.c_str()) < 10) cout<<" ";
+				for (int i=0; i<(maxAddSize-curAddSize); i++) cout<<" ";
+				//if (atoi(LSQ.at(j).address.c_str()) < 100) cout<<" ";
+				//if (atoi(LSQ.at(j).address.c_str()) < 10) cout<<" ";
 				cout<<LSQ.at(j).address;
-				for (int i=0; i<(maxAddSize-curAddSize)/2; i++) cout<<" ";
+				//for (int i=0; i<(maxAddSize-curAddSize)/2; i++) cout<<" ";
 				cout<<" | ";
 			}
 			else
@@ -4640,11 +4640,8 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 
 			if (LSQ.at(j).address.find('+') == string::npos)
 			{
-				for (int i=0; i<((maxAddSize-curAddSize)/2); i++) fout<<" ";
-				if (atoi(LSQ.at(j).address.c_str()) < 100) fout<<" ";
-				if (atoi(LSQ.at(j).address.c_str()) < 10) fout<<" ";
+				for (int i=0; i<(maxAddSize-curAddSize); i++) fout<<" ";
 				fout<<LSQ.at(j).address;
-				for (int i=0; i<(maxAddSize-curAddSize)/2; i++) fout<<" ";
 				fout<<" | ";
 			}
 			else
