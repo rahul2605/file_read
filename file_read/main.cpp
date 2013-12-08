@@ -2912,7 +2912,7 @@ void print_screen(ReservationStation* RS_IntAdder, ReservationStation* RS_FPAdde
 		maxCodeLength+=4+max_len[0]+max_len[1]+maxLSlength;
 
 	
-	cout <<" Total clock cycles = "<<clk<<endl<<endl;
+	cout <<" Current clock cycles = "<<clk<<endl<<endl;
 	cout<<" Timing Table:"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		cout<<" ";
@@ -4156,7 +4156,7 @@ void print_screen_to_file(ReservationStation* RS_IntAdder, ReservationStation* R
 		maxCodeLength+=4+max_len[0]+max_len[1]+maxLSlength;
 
 	
-	fout <<" Total clock cycles = "<<clk<<endl<<endl;
+	fout <<" Current clock cycles = "<<clk<<endl<<endl;
 	fout<<" Timing Table:"<<endl;
 	for (int i=0; i<maxCodeLength; i++)
 		fout<<" ";

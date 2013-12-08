@@ -1,4 +1,4 @@
- Total clock cycles = 1
+ Current clock cycles = 1
 
  Timing Table:
               ______________________________________________
@@ -50,7 +50,7 @@ ROB0   | load	 | f0	 |   0    |   0   | 0
 
 
 
- Total clock cycles = 2
+ Current clock cycles = 2
 
  Timing Table:
                    ______________________________________________
@@ -112,7 +112,7 @@ ROB1   | reg	 | f4	 |   0    |   0   | 1
 
 
 
- Total clock cycles = 3
+ Current clock cycles = 3
 
  Timing Table:
                    ______________________________________________
@@ -177,7 +177,7 @@ ROB2   | store	 | lsq1	 |   0    |   0   | 2
 
 
 
- Total clock cycles = 4
+ Current clock cycles = 4
 
  Timing Table:
                    ______________________________________________
@@ -245,7 +245,7 @@ ROB3   | store	 | lsq2	 |   0    |   0   | 3
 
 
 
- Total clock cycles = 5
+ Current clock cycles = 5
 
  Timing Table:
                    ______________________________________________
@@ -317,7 +317,7 @@ ROB4   | reg	 | r3	 |   0    |   0   | 4
 
 
 
- Total clock cycles = 6
+ Current clock cycles = 6
 
  Timing Table:
                    ______________________________________________
@@ -400,7 +400,7 @@ ROB5   | branch	 | 	 |   0    |   0   | 5
 
 
 
- Total clock cycles = 7
+ Current clock cycles = 7
 
  Timing Table:
                    ______________________________________________
@@ -482,7 +482,7 @@ ROB5   | branch	 | 	 |    0   |   0   | 5
 
 
 
- Total clock cycles = 8
+ Current clock cycles = 8
 
  Timing Table:
                    ______________________________________________
@@ -562,7 +562,7 @@ ROB5   | branch	 | 	 |    0   |   0   | 5
 
 
 
- Total clock cycles = 9
+ Current clock cycles = 9
 
  Timing Table:
                    ______________________________________________
@@ -642,7 +642,7 @@ ROB5   | branch	 | 	 |    0   |   0   | 5
 
 
 
- Total clock cycles = 10
+ Current clock cycles = 10
 
  Timing Table:
                    ______________________________________________
@@ -722,7 +722,7 @@ ROB5   | branch	 | 	 |    0   |   0   | 5
 
 
 
- Total clock cycles = 11
+ Current clock cycles = 11
 
  Timing Table:
                    ______________________________________________
@@ -803,7 +803,7 @@ ROB5   | branch	 | 	 |    0   |   0   | 5
 
 
 
- Total clock cycles = 12
+ Current clock cycles = 12
 
  Timing Table:
                    ______________________________________________
@@ -886,7 +886,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 13
+ Current clock cycles = 13
 
  Timing Table:
                    ______________________________________________
@@ -971,7 +971,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 14
+ Current clock cycles = 14
 
  Timing Table:
                    ______________________________________________
@@ -1057,7 +1057,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 15
+ Current clock cycles = 15
 
  Timing Table:
                    ______________________________________________
@@ -1145,7 +1145,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 16
+ Current clock cycles = 16
 
  Timing Table:
                    ______________________________________________
@@ -1235,7 +1235,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 17
+ Current clock cycles = 17
 
  Timing Table:
                    ______________________________________________
@@ -1327,7 +1327,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 18
+ Current clock cycles = 18
 
  Timing Table:
                    ______________________________________________
@@ -1420,7 +1420,7 @@ ROB6   | reg	 | f4	 |    0   |   0   | 7
 
 
 
- Total clock cycles = 19
+ Current clock cycles = 19
 
  Timing Table:
                    ______________________________________________
@@ -1515,7 +1515,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 20
+ Current clock cycles = 20
 
  Timing Table:
                    ______________________________________________
@@ -1612,7 +1612,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 21
+ Current clock cycles = 21
 
  Timing Table:
                    ______________________________________________
@@ -1709,7 +1709,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 22
+ Current clock cycles = 22
 
  Timing Table:
                    ______________________________________________
@@ -1807,7 +1807,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 23
+ Current clock cycles = 23
 
  Timing Table:
                    ______________________________________________
@@ -1907,7 +1907,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 24
+ Current clock cycles = 24
 
  Timing Table:
                    ______________________________________________
@@ -2008,7 +2008,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 25
+ Current clock cycles = 25
 
  Timing Table:
                    ______________________________________________
@@ -2111,7 +2111,7 @@ ROB7   | store	 | lsq2	 |    0   |   0   | 14
 
 
 
- Total clock cycles = 26
+ Current clock cycles = 26
 
  Timing Table:
                    ______________________________________________
@@ -2217,7 +2217,7 @@ ROB8   | store	 | lsq3	 |    0   |   0   | 21
 
 
 
- Total clock cycles = 27
+ Current clock cycles = 27
 
  Timing Table:
                    ______________________________________________
@@ -2325,7 +2325,7 @@ ROB9   | reg	 | r3	 |    0   |   0   | 22
 
 
 
- Total clock cycles = 28
+ Current clock cycles = 28
 
  Timing Table:
                    ______________________________________________
@@ -2434,7 +2434,7 @@ ROB9   | reg	 | r3	 |    0   |   0   | 22
 
 
 
- Total clock cycles = 29
+ Current clock cycles = 29
 
  Timing Table:
                    ______________________________________________
@@ -2543,7 +2543,7 @@ ROB9   | reg	 | r3	 |    0   |   0   | 22
 
 
 
- Total clock cycles = 30
+ Current clock cycles = 30
 
  Timing Table:
                    ______________________________________________
@@ -2653,7 +2653,7 @@ ROB9   | reg	 | r3	 |   48   |   1   | 22
 
 
 
- Total clock cycles = 31
+ Current clock cycles = 31
 
  Timing Table:
                    ______________________________________________
@@ -2765,7 +2765,7 @@ ROB9   | reg	 | r3	 |   48   |   1   | 22
 
 
 
- Total clock cycles = 32
+ Current clock cycles = 32
 
  Timing Table:
                    ______________________________________________
@@ -2879,7 +2879,7 @@ ROB9   | reg	 | r3	 |   48   |   1   | 22
 
 
 
- Total clock cycles = 33
+ Current clock cycles = 33
 
  Timing Table:
                    ______________________________________________
@@ -2994,7 +2994,7 @@ ROB9   | reg	 | r3	 |   48   |   1   | 22
 
 
 
- Total clock cycles = 34
+ Current clock cycles = 34
 
  Timing Table:
                    ______________________________________________
@@ -3111,7 +3111,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 35
+ Current clock cycles = 35
 
  Timing Table:
                    ______________________________________________
@@ -3227,7 +3227,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 36
+ Current clock cycles = 36
 
  Timing Table:
                    ______________________________________________
@@ -3343,7 +3343,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 37
+ Current clock cycles = 37
 
  Timing Table:
                    ______________________________________________
@@ -3460,7 +3460,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 38
+ Current clock cycles = 38
 
  Timing Table:
                    ______________________________________________
@@ -3579,7 +3579,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 39
+ Current clock cycles = 39
 
  Timing Table:
                    ______________________________________________
@@ -3700,7 +3700,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 40
+ Current clock cycles = 40
 
  Timing Table:
                    ______________________________________________
@@ -3822,7 +3822,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 41
+ Current clock cycles = 41
 
  Timing Table:
                    ______________________________________________
@@ -3946,7 +3946,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 42
+ Current clock cycles = 42
 
  Timing Table:
                    ______________________________________________
@@ -4069,7 +4069,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 43
+ Current clock cycles = 43
 
  Timing Table:
                    ______________________________________________
@@ -4192,7 +4192,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 44
+ Current clock cycles = 44
 
  Timing Table:
                    ______________________________________________
@@ -4316,7 +4316,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 45
+ Current clock cycles = 45
 
  Timing Table:
                    ______________________________________________
@@ -4442,7 +4442,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 29
 
 
 
- Total clock cycles = 46
+ Current clock cycles = 46
 
  Timing Table:
                    ______________________________________________
@@ -4570,7 +4570,7 @@ ROB9   | branch	 | 	 |    0   |   0   | 35
 
 
 
- Total clock cycles = 47
+ Current clock cycles = 47
 
  Timing Table:
                    ______________________________________________
@@ -4699,7 +4699,7 @@ ROB9   | branch	 | 	 |    0   |   0   | 35
 
 
 
- Total clock cycles = 48
+ Current clock cycles = 48
 
  Timing Table:
                    ______________________________________________
@@ -4830,7 +4830,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 49
+ Current clock cycles = 49
 
  Timing Table:
                    ______________________________________________
@@ -4960,7 +4960,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 50
+ Current clock cycles = 50
 
  Timing Table:
                    ______________________________________________
@@ -5090,7 +5090,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 51
+ Current clock cycles = 51
 
  Timing Table:
                    ______________________________________________
@@ -5221,7 +5221,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 52
+ Current clock cycles = 52
 
  Timing Table:
                    ______________________________________________
@@ -5354,7 +5354,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 53
+ Current clock cycles = 53
 
  Timing Table:
                    ______________________________________________
@@ -5489,7 +5489,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 54
+ Current clock cycles = 54
 
  Timing Table:
                    ______________________________________________
@@ -5625,7 +5625,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 55
+ Current clock cycles = 55
 
  Timing Table:
                    ______________________________________________
@@ -5763,7 +5763,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 56
+ Current clock cycles = 56
 
  Timing Table:
                    ______________________________________________
@@ -5900,7 +5900,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 57
+ Current clock cycles = 57
 
  Timing Table:
                    ______________________________________________
@@ -6037,7 +6037,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 58
+ Current clock cycles = 58
 
  Timing Table:
                    ______________________________________________
@@ -6175,7 +6175,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 59
+ Current clock cycles = 59
 
  Timing Table:
                    ______________________________________________
@@ -6315,7 +6315,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 41
 
 
 
- Total clock cycles = 60
+ Current clock cycles = 60
 
  Timing Table:
                    ______________________________________________
@@ -6457,7 +6457,7 @@ ROB9   | branch	 | 	 |    0   |   0   | 47
 
 
 
- Total clock cycles = 61
+ Current clock cycles = 61
 
  Timing Table:
                    ______________________________________________
@@ -6600,7 +6600,7 @@ ROB9   | branch	 | 	 |    0   |   0   | 47
 
 
 
- Total clock cycles = 62
+ Current clock cycles = 62
 
  Timing Table:
                    ______________________________________________
@@ -6745,7 +6745,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 63
+ Current clock cycles = 63
 
  Timing Table:
                    ______________________________________________
@@ -6889,7 +6889,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 64
+ Current clock cycles = 64
 
  Timing Table:
                    ______________________________________________
@@ -7033,7 +7033,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 65
+ Current clock cycles = 65
 
  Timing Table:
                    ______________________________________________
@@ -7178,7 +7178,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 66
+ Current clock cycles = 66
 
  Timing Table:
                    ______________________________________________
@@ -7325,7 +7325,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 67
+ Current clock cycles = 67
 
  Timing Table:
                    ______________________________________________
@@ -7474,7 +7474,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 68
+ Current clock cycles = 68
 
  Timing Table:
                    ______________________________________________
@@ -7624,7 +7624,7 @@ ROB10  | branch	 | 	 |   0    |   0   | 53
 
 
 
- Total clock cycles = 69
+ Current clock cycles = 69
 
  Timing Table:
                    ______________________________________________
@@ -7776,7 +7776,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 70
+ Current clock cycles = 70
 
  Timing Table:
                    ______________________________________________
@@ -7927,7 +7927,7 @@ ROB10  | branch	 | 	 |   0    |   0   | 53
 
 
 
- Total clock cycles = 71
+ Current clock cycles = 71
 
  Timing Table:
                    ______________________________________________
@@ -8078,7 +8078,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 72
+ Current clock cycles = 72
 
  Timing Table:
                    ______________________________________________
@@ -8230,7 +8230,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 73
+ Current clock cycles = 73
 
  Timing Table:
                    ______________________________________________
@@ -8384,7 +8384,7 @@ ROB10  | branch	 | 	 |    0   |   0   | 53
 
 
 
- Total clock cycles = 74
+ Current clock cycles = 74
 
  Timing Table:
                    ______________________________________________
@@ -8526,7 +8526,7 @@ ROB9   | branch	 | 	 |    0   |   0   | 59
 
 
 
- Total clock cycles = 75
+ Current clock cycles = 75
 
  Timing Table:
                    ______________________________________________
@@ -8667,7 +8667,7 @@ ROB9   | branch	 | 	 |   0    |   0   | 59
 
 
 
- Total clock cycles = 76
+ Current clock cycles = 76
 
  Timing Table:
                    ______________________________________________
@@ -8800,7 +8800,7 @@ ROB9   | branch	 | 	 |     0  |   0   | 59
 
 
 
- Total clock cycles = 77
+ Current clock cycles = 77
 
  Timing Table:
                    ______________________________________________
@@ -8932,7 +8932,7 @@ ROB9   | branch	 | 	 |   0    |   0   | 59
 
 
 
- Total clock cycles = 78
+ Current clock cycles = 78
 
  Timing Table:
                    ______________________________________________
@@ -9062,7 +9062,7 @@ ROB9   | branch	 | 	 |   0    |   0   | 59
 
 
 
- Total clock cycles = 79
+ Current clock cycles = 79
 
  Timing Table:
                    ______________________________________________
@@ -9184,7 +9184,7 @@ ROB9   | branch	 | 	 |   0    |   0   | 59
 
 
 
- Total clock cycles = 80
+ Current clock cycles = 80
 
  Timing Table:
                    ______________________________________________
@@ -9305,7 +9305,7 @@ ROB9   | branch	 | 	 |   0    |   0   | 59
 
 
 
- Total clock cycles = 81
+ Current clock cycles = 81
 
  Timing Table:
                    ______________________________________________
